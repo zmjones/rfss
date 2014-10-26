@@ -4,6 +4,10 @@
 [^zach]: Zachary M. Jones is a Ph.D. student in political science at Pennsylvania State University ([zmj@zmjones.com](mailto:zmj@zmjones.com)).
 [^frido]: Fridolin Linder is a Ph.D. student in political science at Pennsylvania State University ([fridolin.linder@gmail.com](mailto:fridolin.linder@gmail.com)).
 
+## Introduction
+
+Political scientists have, in recent years, begun to utilize more flexible algorithmic methods for inferring substantive relationships from data [@beck1998beyond; @beck2000improving; @hainmueller2013kernel; @hill2014empirical]. These methods can often outpeform more commonly used regression methods at predicting data not used to fit the model, which is useful for policymakers and serves as a useful check of the explanatory power of our theories [@hill2014empirical]. Many of these methods are commonly thought of as "black box," that is, they predict well, but do not permit substantive interpretation [@breiman2001statistical]. We show that this is the case with a broadly applicable, powerful, and underappreciated method (in political science): random forests [@breiman2001random]. Random forests are especially useful to political scientists because of their ability to approximate arbitrary functional forms, be used with continuous, discrete, and censored (survival) outcomes, and because they permit substantive interpretation via permutation importance measures and the partial dependence algorithm. We provide an introduction to the theory and use of random forests, a substantive example drawn from the literature on comparative politics, and provide software to make substantive inference based on random forests easy.
+
 ## Classification and Regression Trees
 
 The description of the CART algorithm that follows is based on work by @breiman1984classification. More complete overviews of CART and its history can be found in @berk2008statistical, @murphy2012machine, and @hastie2009elements, among others.
