@@ -4,6 +4,7 @@
 [^contact]: Zachary M. Jones is a Ph.D. student in political science at Pennsylvania State University ([zmj@zmjones.com](mailto:zmj@zmjones.com)). Fridolin Linder is a Ph.D. student in political science at Pennsylvania State University ([fridolin.linder@gmail.com](mailto:fridolin.linder@gmail.com)).
 
 \begin{abstract}
+We introduce random forests, a nonparametric supervised learning algorithm that allows researchers to nonparametrically the relationship between an outcome that is continuous, categorical, or censored (survival). Random forests detect interaction and nonlinearity without prespecification, have low generalization error, do not overfit, and can be used with many correlated predictors. Importantly, they can be interpreted in a substantively relevant way via measures of marginal variable importance and the partial dependence algorithm. We provide intuition as well as technical detail about how random forests work, in theory and in practice, as well as an empirical example from the literature on comparative politics. We also provide to facilitate the substantive interpretation of random forests and guidance on when random forests may be useful.
 \end{abstract}
 
 ## Introduction
@@ -59,7 +60,7 @@ $$R = \sum_{k=1}^n \widehat{H}^*(t_k|\textbf{X}_i)$$
 
 If this is the case, the prediction counts as correctly classified.
 
-### Substantive Inference
+### Substantive Interpretation
 
 Since, with random forests both predictors and observations are being sampled, no particular tree will give great insight into the model's overall prediction for each observation. There are, however, several ways to extract inferences from random forests. The most simple is partial dependence [@hastie2009elements]. The partial dependence algorithm works as follows:
 
@@ -72,7 +73,7 @@ Since, with random forests both predictors and observations are being sampled, n
 
 With slight modification, this method can also be used to visualize any joint relationships (i.e. interactions) the algorithm may have found. To do this create a dataset for each of the possible combinations of unique values of the explanatory variables of interest, predict the outcome in each of these observations, and then find the mean or modal prediction for each of these unique value combinations. For computational reasons we do not always use every unique value when an explanatory variable takes on more an arbitrary number of unique values. In this paper we use a random sample of 24 unique values that $X_i$ takes on.[^extrapolation] This logic can be generalized to joint relationships of an arbitrary dimension, but we limit ourselves here to pairwise partial dependence. The interpretation of partial dependence: the average predicted value for a particular value of an explanatory variable averaged within the joint values of the other predictors.
 
-[^extrapolation]: It is also possible to use an evenly spaced grid, however, this may result in extrapolation. Both of these options are implemented in the companion R package [edarf](https://github.com/zmjones/edarf/).
+[^extrapolation]: It is also possible to use an evenly spaced grid, however, this may result in extrapolation. Both of these options are implemented in our R package [edarf](https://github.com/zmjones/edarf/).
 
 Another approach to extracting inferences from random forests relies on permutation tests for variable importance. Rather than attempting to characterize the partial dependence of one or more predictors on the response, the goal is instead to describe how the model's ability to predict $y$ depends on a particular predictor. If a particular column of $\textbf{X}$, say $X_i$, is unrelated to $y$, then randomly permuting $X_i$ within $\textbf{X}$ should not meaningfully decrease the model's ability to predict $y$. However, if $X_i$ is strongly related to $y$, then permuting its values will produce a systematic decrease in the model's ability to predict $y$, and the stronger the relationship between $X_i$ and $y$, the larger this decrease. Averaging the amount of change in the fitted values from permuting $X_i$ across all the trees in the forest gives the marginal permutation importance of a predictor.[^marginal] Formally, for classification, the importance of explanatory variable $X_i$ in tree $t$ is:
 
@@ -97,5 +98,3 @@ Missing values are a perennial problem in real world data. Often missingness is 
 ## Conclusion
 
 # References
-
-
