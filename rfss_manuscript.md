@@ -4,9 +4,14 @@
 [^zach]: Zachary M. Jones is a Ph.D. student in political science at Pennsylvania State University ([zmj@zmjones.com](mailto:zmj@zmjones.com)).
 [^frido]: Fridolin Linder is a Ph.D. student in political science at Pennsylvania State University ([fridolin.linder@gmail.com](mailto:fridolin.linder@gmail.com)).
 
+\begin{abstract}
+\end{abstract}
+
 ## Introduction
 
 Political scientists have, in recent years, begun to utilize more flexible algorithmic methods for inferring substantive relationships from data [@beck1998beyond; @beck2000improving; @hainmueller2013kernel; @hill2014empirical]. These methods can often outpeform more commonly used regression methods at predicting data not used to fit the model, which is useful for policymakers and serves as a useful check of the explanatory power of our theories [@hill2014empirical]. Many of these methods are commonly thought of as "black box," that is, they predict well, but do not permit substantive interpretation [@breiman2001statistical]. We show that this is the case with a broadly applicable, powerful, and underappreciated method (in political science): random forests [@breiman2001random]. Random forests are especially useful to political scientists because of their ability to approximate arbitrary functional forms, be used with continuous, discrete, and censored (survival) outcomes, and because they permit substantive interpretation via permutation importance measures and the partial dependence algorithm. We provide an introduction to the theory and use of random forests, a substantive example drawn from the literature on comparative politics, and provide software to make substantive inference based on random forests easy.
+
+We think that random forests would be useful in political science when relevant theory says little about the functional form of the relationship of interest, when the magnitude and degree of nonlinearity and interaction is unknown, when the number of possibly relevant predictors is large, and when prediction is important. Random forests can approximate many nonmonotone, nonlinear functional forms by averaging a large number of piecewise linear functions which are learned on bootstrap/sub-samples of the data. Interactions and nonlinearities are identified by random forests without prespecification, which decreases prediction error and allows researchers to study the relationships discovered by the algorithm. Random forests allow the inclusion of more predictors than observations. Though this situation is not common in political science (though see the literature on behavioral genetics, wherein this problem does occur), related issues such as a highly correlated predictors are not an issue for random forests. Prediction is important for theory evaluation and for policymakers, and random forests' predictive performance relative to common parametric regression methods and other nonparametric methods is strong.
 
 ## Classification and Regression Trees
 
