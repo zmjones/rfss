@@ -19,7 +19,7 @@ Since the logic of CARTs is central to the understanding of random forests we ex
 
 ## Classification and Regression Trees
 
-Classification and regression trees (CART) are a regression method that relies on repeated partitioning of the data to estimate the conditional distribution of a response given a set of predictors. Let the outcome of interest be a vector of observations $\textbf{y} = (y_1,y_2,...,y_n)$ and the set of explanatory variables or predictors a matrix $\textbf{X} = (\textbf{x}_1,\textbf{x}_2,...,\textbf{x}_k)$, where $\textbf{x}_i = (x_{i1},x_{i2},...,x_{in})$ for $i \in \{1,2,...,k\}$. The goal of the algorithm is, to partition $\textbf{y}$ conditional on the values of $\textbf{X}$ in such a way that the resulting subgroups of $\textbf{y}$ are as homogeneous as possible.  
+Classification and regression trees (CART) are a regression method that relies on repeated partitioning of the data to estimate the conditional distribution of a response given a set of predictors. Let the outcome of interest be a vector of observations $\textbf{y} = (y_1,...,y_n)^t$ and the set of explanatory variables or predictors a matrix $\textbf{X} = (\textbf{x}_1,...,\textbf{x}_k)$, where $\textbf{x}_i = (x_{i1},...,x_{in})^t$ for $i \in \{1,...,k\}$. The goal of the algorithm is, to partition $\textbf{y}$ conditional on the values of $\textbf{X}$ in such a way that the resulting subgroups of $\textbf{y}$ are as homogeneous as possible.  
 
 The algorithm works by considering every unique value in each predictor as a candidate for a binary split, and calculating the homogeneity of the subgroups of the outcome variable that would result by grouping observations that fall on either side of this value. Consider the (artificial) example in Figure \ref{fig:cart_visu}. $\textbf{y}$ is the vote choice of $n = 40$ subjects (18 republicans and 22 democrats), $\textbf{x}_1$ is the ideology of the voter and $\textbf{x}_2$ is the age. 
 
@@ -33,7 +33,7 @@ However, age still contains information to improve the partitioning. At the seco
 
 We now proceed to extend the logic of CARTs from this very simple example of binary classification with two continuous predictors to dependent variables with other levels of measurement.
 
-When extending the algorithm to other dependent variables we have to explicitly think about loss functions. We used the concept of a loss function in the illustration above already. We calculated the classification error when just using the modal category of the outcome variable and argued that further splits of the data are justified because they decrease this error. More formally let $\textbf{y}^m = (y^m_1,...,y^m_{n^m})$ be the data at the current node $m$, $\textbf{x}^m_s$ the predictor that is considered to be used for a split with unique values $C = \{x^m_i\}_{i\in \{1,...,n^m\}}$ and $c \in C$ the value considered for a split. Then the data left and right of the split is $\textbf{y}^m_l = \{y^m_i:x^m_i \leq c, i = 1,...,n^m\}$ and $\textbf{y}^m_r = \{y^m_i:x^m_i > c, i = 1,...,n^m\}$. The gain from a split at node $m$ in predictor $s$ at value $c$ is defined as:
+When extending the algorithm to other dependent variables we have to explicitly think about loss functions. We used the concept of a loss function in the illustration above already. We calculated the classification error when just using the modal category of the outcome variable and argued that further splits of the data are justified because they decrease this error. More formally let $\textbf{y}^m = (y^m_1,...,y^m_{n^m})$ and $\textbf{X}^m = (\textbf{x}^m_1,...,\textbf{x}^m_k)$ be the data at the current node $m$, $\textbf{x}^m_s$ the predictor that is considered to be used for a split with unique values $C = \{x^m_i\}_{i\in \{1,...,n^m\}}$ and $c \in C$ the value considered for a split. Then the data in the daughter nodes resulting from a split in c are $\textbf{y}^m_l$ and $\textbf{y}^m_r$. Where $\textbf{y}^m_l$ contains all elements of $\textbf{y}^m$ whose corresponding values of $\textbf{x}^m_s \leq c$ and $\textbf{y}^m_r$ all elements where $\textbf{x}^m_s > c$. The gain from a split at node $m$ in predictor $s$ at value $c$ is defined as:
 
 $$\Delta_{m,s,c} = L(\textbf{y}^m) - \left[ \frac{n^m_l}{n^m} L(\textbf{y}^m_l) +  \frac{n^m_r}{n^m} L(\textbf{y}^m_r)\right]$$.
 
@@ -41,29 +41,22 @@ Where $n^m_l$ and $n^m_r$ are the number of cases that fall to the right and to 
 
 In the example above we made the intuitive choice to use the number of cases incorrectly classified when assigning the mode as the fitted value, divided by the number of cases in the node, as the loss function. This proportion can also be interpreted as the impurity of the data in the node, to return to our goal stated at the beginning: to partition the data in a way that produces homogeneous subgroups. Therefore it is intuitive to use the amount of impurity as a measure of loss. It is now obvious how the algorithm can be used for outcomes wit more than two values (i.e. ordinal and nominal as well as continuous outcomes). By choosing a loss function that is appropriate to measure the impurity of a variable at a certain level of measurement, the algorithm can be easily extended to those outcomes. 
 
-For categorical outcomes, denote the set of unique categories of $\textbf{y}^m$ as $D = \{y^m_i\}_{i\in\{1,...,n^m\}}$[^ordered]. In order to asses the number of misclassified cases we first calculate the proportion of cases pertaining to class each class $d \in D$ from:
-
-$$p^m(d) = \frac{1}{n^m}\sum_{i=1}^{n^m} \mathbb{I}(y^m_i = d), d \in D$$.
-
-Where $\mathbb{I}(.)$ denotes the indicator function. $p^m(d)$ is maximized to find the best assignment for the cases in the node: $\hat{y} = \operatorname*{arg\,max}_d p^m(d)$ (this is what we referred to as majority vote above). Then the loss function can be applied to obtain the impurity of the node. The familiar misclassification loss[^loss] is obtained from:
+For categorical outcomes, denote the set of unique categories of $\textbf{y}^m$ as $D = \{y^m_i\}_{i\in\{1,...,n^m\}}$[^ordered]. In order to asses the impurity of the node we first calculate the proportion of cases pertaining to each class $d \in D$ and denote it as $p_d$. Denote further the class that occurs most frequet as $\hat{y} = max[p(d)]$
+ 
+ 
+ $p^m(d)$ is maximized to find the best assignment for the cases in the node: $\hat{y} = \operatorname*{arg\,max}_d p^m(d)$ (this is what we referred to as majority vote above). Then the loss function can be applied to obtain the impurity of the node. The familiar misclassification loss[^loss] is obtained from:
 
 $$\frac{1}{n^m} \sum_{i = 1}^{n^m} \mathbb{I}(y^m_i \neq \hat{y}) = 1 - p^m(\hat{y})$$.
 
-[^loss]: The other two loss functions that are most often used are the Gini loss $\sum_{d \in D} p^m(d)[1-p^m(d)]$, and the cross-entropy or deviance $-\sum_{d \in D} p^m(d)log[p^m(d)]$.
+[^loss]: The other two loss functions that are most often used are the Gini loss $\sum_{d \in D} p^m(d)[1-p^m(d)]$, and the cross-entropy or deviance $-\sum_{d \in D} p^m(d)log[p^m(d)]$. Extensive theoretical [e.g. @raileanu2004theoretical] and empirical [e.g. @mingers1989empirical]  work in the machine learning literature concluded that the choice between those measures does not have a significant impact on the results of the algorithm.
 
 In the continuous case, the fitted value in a node is not calculated by majority vote, but, similar to regression, by assigning the mean of the distribution in that node to each observation. To measure the impurity of the node usually the mean squared error (MSE) is used: 
 
 $$\sum_{i=1}^{n^m} (y^m_i - \bar{y}^m)^2$$.
 
-With survival data, a log-rank statistic is often used. Let $T$ be the time of an event and $C$ the censoring time, then the data consist of $N$ observations $(y_i, \delta_i, \textbf{x}_i)$ where $y_i=\text{min}(T,C)$ and $\delta_i=\mathbb{I}(T \geq C)$. A  given node $h$ in a tree contains $M$ observations with survival times $t_1 < t_2 < \ldots < t_m$. A proposed split results in two daughter nodes $(j=1,2)$ containing a certain amount of cases. Let the $d_{i,j}$ denote the number of deaths and $y_{i \; j}$ the number of observations at risk at time $t_i$ in daughter node $j$ respectively. Then the survival difference resulting from a split at $c$ in predictor $X$ is measured by the log-rank score:
+Where $\bar{y}^m$ is the mean of the observations in $\textbf{y}^m$[^survival].
 
-$$
-L(x,c) = \frac{\sum_{i=1}^M d_{i1} - y_{i1}\frac{d_i}{y_i}}{\sqrt{\sum_{i=1}^M \frac{y_{i1}}{y_i}(1-\frac{y_{i1}}{y_i})(\frac{y_i-d_i}{y_i-1})d_i}}
-$$
-
-At each terminal node the cumulative hazard function (CHF), denoted $H$, is estimated. Each observation in terminal node $h$ is assigned the same CHF, where:
-
-$$\widehat{H}(t|h) = \sum_{t_{lh} \leq t} \frac{d_{lh}}{y_{lh}}$$ 
+[^survival]:  The algorithm can also be applied to censored data. See @ishwaran2013? for details.
 
 The choice of a loss function is in part determined by the type of outcome variable (using the misclassification loss for a continuous outcome would make no sense). Which loss funcion to choose within the three categories that we discussed here is a different question [DISCUSS THAT: gini entropy or misclassification doesn't matter but you can get creative, see Berk. dk if we want to include that]
 
