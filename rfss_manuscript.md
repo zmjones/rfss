@@ -43,17 +43,17 @@ In the example above we made the intuitive choice to use the number of cases inc
 
 For categorical outcomes, denote the set of unique categories of $\mathbf{y}^m$ as $\mathcal{D} = \{y^m_i\}_{i\in\{1,...,n^m\}}$[^ordered]. In order to asses the impurity of the node we first calculate the proportion of cases pertaining to each class $d \in \mathcal{D}$ and denote it as $p^m(d)$. Denote further the class that occurs most frequent as $\hat{y} = max[p^m(d)]$. Then the loss function can be applied to obtain the impurity of the node. The familiar misclassification loss is obtained from:
 
- $$L_{mc}($\mathbf{y}^m$) = \frac{1}{n^m} \sum_{i = 1}^{n^m} \mathbb{I}(y^m_i \neq \hat{y}) = 1 - p^m(\hat{y})$$.
+$$L_{mc}(\mathbf{y}^m) = \frac{1}{n^m} \sum_{i = 1}^{n^m} \mathbb{I}(y^m_i \neq \hat{y}) = 1 - p^m(\hat{y})$$.
 
 Where $\mathbb{I}(.)$ is the indicator function. This formalizes the intuition used above, the impurity of the node is the proportion of cases that would be misclassified under "majority rule"[^loss].
 
 [^ordered]: It does not matter if these categories are ordered or nominal. The algorithm treats all discrete outcomes as if they were nominal.
   
-[^loss]: The other two loss functions that are most often used are the Gini loss $L_{gini}($\mathbf{y}^m$) = \sum_{d \in \mathcal{D}} p^m(d)[1-p^m(d)]$, and the entropy of the node $ L_{ent}($\mathbf{y}^m$) = -\sum_{d \in \mathcal{D}} p^m(d)\log[p^m(d)]$. Extensive theoretical [e.g. @raileanu2004theoretical] and empirical [e.g. @mingers1989empirical]  work in the machine learning literature concluded that the choice between those measures does not have a significant impact on the results of the algorithm.
+[^loss]: The other two loss functions that are most often used are the Gini loss $L_{gini}(\mathbf{y}^m$) = \sum_{d \in \mathcal{D}} p^m(d)[1-p^m(d)]$, and the entropy of the node $L_{ent}(\mathbf{y}^m) = -\sum_{d \in \mathcal{D}} p^m(d)\log[p^m(d)]$. Extensive theoretical [e.g. @raileanu2004theoretical] and empirical [e.g. @mingers1989empirical]  work in the machine learning literature concluded that the choice between those measures does not have a significant impact on the results of the algorithm.
 
 In the continuous case, the fitted value in a node is not calculated by majority vote, but, similar to regression, by assigning the mean of the distribution in that node to each observation. To measure the impurity of the node usually the mean squared error (MSE) is used: 
 
-$$L_{mse}($\mathbf{y}^m$) = \sum_{i=1}^{n^m} (y^m_i - \bar{y}^m)^2$$.
+$$L_{mse}(\mathbf{y}^m) = \sum_{i=1}^{n^m} (y^m_i - \bar{y}^m)^2$$.
 
 Where $\bar{y}^m$ is the mean of the observations in $\mathbf{y}^m$[^survival].
 
