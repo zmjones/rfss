@@ -49,7 +49,7 @@ Where $\mathbb{I}(.)$ is the indicator function. This formalizes the intuition u
 
 [^ordered]: It does not matter if these categories are ordered or nominal. The algorithm treats all discrete outcomes as if they were nominal.
   
-[^loss]: The other two loss functions that are most often used are the Gini loss $L_{gini}(\mathbf{y}^m$) = \sum_{d \in \mathcal{D}} p^m(d)[1-p^m(d)]$, and the entropy of the node $L_{ent}(\mathbf{y}^m) = -\sum_{d \in \mathcal{D}} p^m(d)\log[p^m(d)]$. Extensive theoretical [e.g. @raileanu2004theoretical] and empirical [e.g. @mingers1989empirical]  work in the machine learning literature concluded that the choice between those measures does not have a significant impact on the results of the algorithm.
+[^loss]: The other two loss functions that are most often used are the Gini loss $L_{gini}(\mathbf{y}^m) = \sum_{d \in \mathcal{D}} p^m(d)[1-p^m(d)]$, and the entropy of the node $L_{ent}(\mathbf{y}^m) = -\sum_{d \in \mathcal{D}} p^m(d)\log[p^m(d)]$. Extensive theoretical [e.g. @raileanu2004theoretical] and empirical [e.g. @mingers1989empirical]  work in the machine learning literature concluded that the choice between those measures does not have a significant impact on the results of the algorithm.
 
 In the continuous case, the fitted value in a node is not calculated by majority vote, but, similar to regression, by assigning the mean of the distribution in that node to each observation. To measure the impurity of the node usually the mean squared error (MSE) is used: 
 
