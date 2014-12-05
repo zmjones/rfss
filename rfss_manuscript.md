@@ -71,7 +71,7 @@ As previously mentioned CART has two main problems: fitted values have high vari
 
 @breiman2001random extended the logic of bagging to predictors, resulting in random forests. Instead of each tree relying on a bootstrapped sample of observations on all variables, only a random subset of the predictors are used for each splitting node in a tree: increasing the diversity of splits across trees: allowing weaker predictors to have an opportunity to influence the models' predictions. This results in a further decrease in the variance of the fitted values (beyond bagging observations) and allows the use of large numbers of potentially relevant predictors (many more predictors than observations in some cases). A particular observation can fall in the terminal nodes of many trees in the forest, each of which, potentially, can give a different prediction. Again the OOB data, that is, data that was *not* drawn in the bootstrap sample used to fit a particular tree, is used to make each tree's prediction. This results in a weighted average:
 
-$$f(\mathbf{X}) = \frac{1}{T} \sum_{t=1}^T f^{(t)}(\mathbf{X}_{i \in \bar{\mathcal{B}}^{(t)}})$$
+$$\hat{f}(\mathbf{X}) = \frac{1}{T} \sum_{t=1}^T f^{(t)}(\mathbf{X}_{i \in \bar{\mathcal{B}}^{(t)}})$$
 
 where $T$ is the total number of trees in the forest, and $f^{(t)}(\cdot)$ is the $t$'th tree, $\bar{\mathcal{B}}^{(t)}$ is the out-of-bag data for the $t$'th tree, that is, observations in $\mathbf{X}^{(t)}$ and not in $\mathcal{B}^{(t)}$, the bootstrap sample for the $t$'th tree. The number of candidate predictors available at each node is a tuning parameter and should be chosen to minimize expected generalization error. Random forests compare favorably with other popular nonparametric methods in prediction tasks and can be interpreted substantively as well [See e.g., @breiman2001random; @breiman2001statistical; @cutler2007random; @murphy2012machine; @hastie2009elements].
 
@@ -81,10 +81,10 @@ Random forests are not without issue however. The CART which they are composed o
 
 Since, with random forests both predictors and observations are being sampled, no particular tree will give great insight into the model's overall prediction for each observation. There are, however, several ways to extract inferences from random forests. The most simple is partial dependence [@hastie2009elements]. The partial dependence algorithm works as follows:
 
- 1. Let $\mathbf{x}_j$ be the predictor of interest, $\mathbf{X}_{-j}$ be the other predictors, $\mathbf{y}$ be the outcome, and $f(\mathbf{X})$ the fitted forest.
+ 1. Let $\mathbf{x}_j$ be the predictor of interest, $\mathbf{X}_{-j}$ be the other predictors, $\mathbf{y}$ be the outcome, and $\hat{f}(\mathbf{X})$ the fitted forest.
  2. For $\mathbf{x}_j$ sort the unique values $\mathcal{V} = \{\mathbf{x}_j\}_{i \in \{1, \ldots, n\}}$ resulting in $\mathcal{V}^*$, where $|\mathcal{V}^*|=K$. Create $K$ new matrices $\mathbf{X}^{(k)} = (\mathbf{x}_j = \mathcal{V}^*_k, \mathbf{X}_{-j}), \: \forall \, k = (1, \ldots, K)$.
  3. Drop each of the $K$ new datasets, $\mathbf{X}^{(k)}$ down the fitted forest 
- resulting in a predicted value for each observation in all $k$ datasets: $\hat{\mathbf{y}}^{(k)} = f(\mathbf{X}^{(k)}), \: \forall \, k = (1, \ldots, K)$.
+ resulting in a predicted value for each observation in all $k$ datasets: $\hat{\mathbf{y}}^{(k)} = \hat{f}(\mathbf{X}^{(k)}), \: \forall \, k = (1, \ldots, K)$.
  4. Average the predictions in each of the $K$ datasets, $\hat{y}_k^* = \frac{1}{n}\sum_{i=1}^N \hat{y}_i^{(k)}, \: \forall \, k = (1, \ldots, K)$.
  5. Visualize the relationship by plotting $\mathbf{V}^*$ against $\hat{\mathbf{y}}^*$.
 
