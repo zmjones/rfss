@@ -12,10 +12,10 @@
 
 # CART (Overview)
 
- $\mathbf(y) = f(\mathbf{X})$
+$$\mathbf{y} = f(\mathbf{X})$$
  
- - cart "learns" a piecewise approximation to $f(\cdot)$ by finding homogeneous subsets of the data conditional on the predictors
- - Non-parametric: No assumptions about the distribution of the outcome variable only that the functional form can be approximated by a piecewise constant function
+ - CART "learns" a piecewise approximation to $f(\cdot)$ by finding homogeneous subsets of the data conditional on the predictors
+ - Non-parametric: No assumptions about the distribution of the outcome variable; only that the functional form can be approximated by a piecewise constant function
  - Works for continuous and discrete (ordered/unordered) outcomes
  
 # CART (How it works)
@@ -24,52 +24,48 @@
 
 # CART (Splitting)
 
-- Loss function ($L(\cdot)$): "Node Impurity"
+- Loss function $L(\cdot)$: "Node Impurity"
 - Can be measured in several ways
-- For categorical outcomes: Gini index, entropy, missclassification by majority vote
-- For continuous outcomes: Variance (equivalent to MSE for piecewise constant functions)
+    + categorical outcomes: Gini index, entropy, missclassification by majority vote
+    + continuous outcomes: Variance (equivalent to MSE for piecewise constant functions)
 
 - At each node the split (which predictor and which value) that minimizes the impurity is selected
 - Gain from a split at value $c$ in variable $x$ is defined as:
 
 $$\Delta_{c, x} = L(\mathbf{y}) - \left[\frac{n^{(l)}}{n} L(\mathbf{y}^{(l)}) +  \frac{n^{(r)}}{n} L(\mathbf{y}^{(r)})\right]$$.
 
+# CART Function Approximation
+
+![Approximating $\mathbf{y} = \sin(\mathbf{x})$ with a regression tree which is a piecewise constant function.](figures/cart_approximation.png)
+
 # Ensembles
 
- - decision trees are low bias high variance estimators of $\hat{\mathbf{y}} = \hat{f}(\mathbf{X})$
-   + this is what is meant when bias/variance is discussed in the statistical learning literature
- - ensembles of decision trees are useful when they reduce bias and variance
+ - decision trees are low bias high variance estimators of $\hat{f}(\mathbf{X})$
+    + this is what is meant when bias/variance is discussed in the statistical learning literature
+ - ensembles of decision trees are useful when they reduce bias and/or variance
 
   1. bagging (resample data and fit a tree to each replicate: reduces variance)
   2. boosting (reweight predictions by negative gradient of loss)
   3. randomization (decorrelate trees by growing them with a random selection of predictors)
 
-(1) combined with (3) when (3) is random selection of predictors at each node in the tree gives random forests
+Bagging combined with (3) when (3) is random selection of predictors at each node in the tree gives random forests
 
 # Random Forests
 
 insert graph of node randomization
 
-# Random Forests
+# Random Forest Function Approximation
 
-![25 randomly selected trees in a random forest each grown with a subsample (Efron's .632 bootstrap) of the training data.](figures/forest_approximation.png)
+![25 randomly selected trees (shown in blue) in a random forest (prediction shown in red) each grown with a subsample (Efron's .632 bootstrap) of the training data.](figures/forest_approximation.png)
 
-# Function Approximation
+# Example Data
 
-![Approximating $\mathbf{y} = \sin(\mathbf{x})$ with a regression tree (left) and an ensemble of bagged regression trees (right).](figures/approximation_example.png)
-
-# Partial Dependence
-
-1. Let $\mathbf{x}_j$ be the predictor of interest, $\mathbf{X}_{-j}$ be the other predictors, $\mathbf{y}$ be the outcome, and $\hat{f}(\mathbf{X})$ the fitted forest.
- 2. For $\mathbf{x}_j$ sort the unique values $\mathcal{V} = \{\mathbf{x}_j\}_{i \in \{1, \ldots, n\}}$ resulting in $\mathcal{V}^*$, where $|\mathcal{V}^*|=K$. Create $K$ new matrices $\mathbf{X}^{(k)} = (\mathbf{x}_j = \mathcal{V}^*_k, \mathbf{X}_{-j}), \: \forall \, k = (1, \ldots, K)$.
- 3. Drop each of the $K$ new datasets, $\mathbf{X}^{(k)}$ down the fitted forest 
- resulting in a predicted value for each observation in all $k$ datasets: $\hat{\mathbf{y}}^{(k)} = f(\mathbf{X}^{(k)}), \: \forall \, k = (1, \ldots, K)$.
- 4. Average the predictions in each of the $K$ datasets, $\hat{y}_k^* = \frac{1}{n}\sum_{i=1}^N \hat{y}_i^{(k)}, \: \forall \, k = (1, \ldots, K)$.
- 5. Visualize the relationship by plotting $\mathbf{V}^*$ against $\hat{\mathbf{y}}^*$.
-
-# 
-
-![The partial dependence of several predictors on a continuous measure of state repression due to Fariss (2014).](figures/hr_pd.png)
+ - State repression (1981-1999) country-year from a dynamic measurement model in Fariss (2014)
+    + latent continuous measure that is nonstationary and trending upwards over time and is a near unit-root
+ - Predictors are a subset of Hill and Jones (2014)
+ - Substantial non-ignorable missingness handled via surrogate splitting
+ - Data are naively resampled for growing trees
+    + effects of this are not entirely clear yet, working on it!
 
 # Permutation Importance
 
@@ -82,19 +78,21 @@ $$\text{VI}(\mathbf{x}_j) = \frac{1}{T} \sum_{t=1}^T \text{VI}^{(t)}(\mathbf{x}_
 
 Where $L(\cdot)$ is a loss function such as $\mathbb{I}(y_i = \hat{y}_i)$ or $(y_i - \hat{y}_i)^2$.
 
-# Example (1.)
- - intro to data
+# Permutation Importance Example
 
-# Example (2.)
- - details
+# Partial Dependence
 
-# Example (3.)
- - prediction plot
+1. Let $\mathbf{x}_j$ be the predictor of interest, $\mathbf{X}_{-j}$ be the other predictors, $\mathbf{y}$ be the outcome, and $\hat{f}(\mathbf{X})$ the fitted forest.
+ 2. For $\mathbf{x}_j$ sort the unique values $\mathcal{V} = \{\mathbf{x}_j\}_{i \in \{1, \ldots, n\}}$ resulting in $\mathcal{V}^*$, where $|\mathcal{V}^*|=K$. Create $K$ new matrices $\mathbf{X}^{(k)} = (\mathbf{x}_j = \mathcal{V}^*_k, \mathbf{X}_{-j}), \: \forall \, k = (1, \ldots, K)$.
+ 3. Drop each of the $K$ new datasets, $\mathbf{X}^{(k)}$ down the fitted forest 
+ resulting in a predicted value for each observation in all $k$ datasets: $\hat{\mathbf{y}}^{(k)} = f(\mathbf{X}^{(k)}), \: \forall \, k = (1, \ldots, K)$.
+ 4. Average the predictions in each of the $K$ datasets, $\hat{y}_k^* = \frac{1}{n}\sum_{i=1}^N \hat{y}_i^{(k)}, \: \forall \, k = (1, \ldots, K)$.
+ 5. Visualize the relationship by plotting $\mathbf{V}^*$ against $\hat{\mathbf{y}}^*$.
 
-# Example (4.)
- - partial dependence plots (subset)
+# Partial Dependence Example
 
-# Example (5.)
- - permutation importance plot
+![The partial dependence of several predictors on a continuous measure of state repression due to Fariss (2014).](figures/hr_pd.png)
+
+# Multivariate Partial Dependence
 
 # Conclusion
