@@ -10,20 +10,29 @@
 	+ to discover patterns in the data
  - algorithmic methods (i.e. machine/statistical learning) that are good for prediction are a great way to do EDA
 
-# CART (1.)
+# CART (Overview)
 
- - piecewise constant approximation to $f(\mathbf{X})$
- - find subsets of the data using the predictors that are homogenous in the outcome variable
-
-# CART (2.)
+ $\mathbf(y) = f(\mathbf{X})$
+ 
+ - cart ``learns'' a piecewise approximation to $f(.)$ by finding homogeneous subsets of the data conditional on the predictors
+ - Non-parametric: No assumptions about the distribution of the outcome variables or the functional form linking predictors to the outcome
+ - Works for continuous and discrete (ordered/unordered) outcomes
+ 
+# CART (How it works)
 
 ![A classification tree on simulated data](figures/cart_visu.png)
 
-# CART (3.)
+# CART (Splitting)
 
- - 
+- Loss function ($L(.)$): "Node Impurity"
+- Can be measured in several ways
+- For categorical outcomes: Gini index, entropy, missclassification by majority vote
+- For continuous outcomes: Variance
 
-Gain: $$\Delta^{(m)}_{c}(\mathbf{x}^{(m)}_s) = L(\mathbf{y}^{(m)}) - \left[\frac{n^{(m_l)}}{n^{(m)}} L(\mathbf{y}^{(m_l)}) +  \frac{n^{(m_r)}}{n^{(m)}} L(\mathbf{y}^{(m_r)})\right]$$.
+- At each node the split (which predictor and which value) that minimizes the impurity is selected
+- Gain from a split at value $c$ in variable $x$ is defined as:
+
+$$\Delta_{c, x} = L(\mathbf{y}) - \left[\frac{n^{(l)}}{n} L(\mathbf{y}^{(l)}) +  \frac{n^{(r)}}{n} L(\mathbf{y}^{(r)})\right]$$.
 
 # Ensembles
 
