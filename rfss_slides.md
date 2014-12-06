@@ -74,6 +74,13 @@ $$\text{VI}^{(t)}(\mathbf{x}_j) = \frac{\sum_{i \in \bar{\mathcal{B}}^{(t)}} \ma
 $$
 $$\text{VI}(\mathbf{x}_j) = \frac{1}{T} \sum_{t=1}^T \text{VI}^{(t)}(\mathbf{x}_j)$$
 
+# Interactions (1.)
+
+- Two way interactions can be detected visually through partial dependence plots
+- Or directly from the structure of each tree: minimal depth in maximal subtrees
+
+![The partial dependence for a pair of predictors to visualize interactive associations.](figures/interaction.png)
+
 # Example (1.)
  - intro to data
 
