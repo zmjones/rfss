@@ -41,6 +41,10 @@ Gain: $$\Delta^{(m)}_{c}(\mathbf{x}^{(m)}_s) = L(\mathbf{y}^{(m)}) - \left[\frac
 
 insert graph of node randomization
 
+# Random Forests
+
+![25 randomly selected trees in a random forest each grown with a subsample (Efron's .632 bootstrap) of the training data.](figures/forest_approximation.png)
+
 # Function Approximation
 
 ![Approximating $\mathbf{y} = \sin(\mathbf{x})$ with a regression tree (left) and an ensemble of bagged regression trees (right).](figures/approximation_example.png)
@@ -60,10 +64,14 @@ insert graph of node randomization
 
 # Permutation Importance
 
-$$\text{VI}^{(t)}(\mathbf{x}_j) = \frac{\sum_{i \in \bar{\mathcal{B}}^{(t)}} \mathbb{I}(y_i = \hat{y}_i^{(t)})}{|\bar{\mathcal{B}}^{(t)}|} -
-\frac{\sum_{i \in \bar{\mathcal{B}}^{(t)}} \mathbb{I}(y_i = \hat{y}_{i \pi j}^{(t)})}{|\bar{\mathcal{B}}^{(t)}|}
+How much would generalization error increase if we didn't know about $\mathbf{x}_j$?
+
+$$\text{VI}^{(t)}(\mathbf{x}_j) = \frac{\sum_{i \in \bar{\mathcal{B}}^{(t)}} L(y_i, \hat{y}_i^{(t)})}{|\bar{\mathcal{B}}^{(t)}|} -
+\frac{\sum_{i \in \bar{\mathcal{B}}^{(t)}} L(y_i,\hat{y}_{i \pi j}^{(t)})}{|\bar{\mathcal{B}}^{(t)}|}
 $$
 $$\text{VI}(\mathbf{x}_j) = \frac{1}{T} \sum_{t=1}^T \text{VI}^{(t)}(\mathbf{x}_j)$$
+
+Where $L(\cdot)$ is a loss function such as $\mathbb{I}(y_i = \hat{y}_i)$ or $(y_i - \hat{y}_i)^2$.
 
 # Example (1.)
  - intro to data
