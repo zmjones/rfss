@@ -37,6 +37,14 @@ Gain: $$\Delta^{(m)}_{c}(\mathbf{x}^{(m)}_s) = L(\mathbf{y}^{(m)}) - \left[\frac
 
 (1) combined with (3) when (3) is random selection of predictors at each node in the tree gives random forests
 
+# Random Forests
+
+insert graph of node randomization
+
+# Function Approximation
+
+![Approximating $\mathbf{y} = \sin(\mathbf{x})$ with a regression tree (left) and an ensemble of bagged regression trees (right).](figures/approximation_example.png)
+
 # Partial Dependence
 
 1. Let $\mathbf{x}_j$ be the predictor of interest, $\mathbf{X}_{-j}$ be the other predictors, $\mathbf{y}$ be the outcome, and $\hat{f}(\mathbf{X})$ the fitted forest.
