@@ -14,8 +14,8 @@
 
  $\mathbf(y) = f(\mathbf{X})$
  
- - cart ``learns'' a piecewise approximation to $f(.)$ by finding homogeneous subsets of the data conditional on the predictors
- - Non-parametric: No assumptions about the distribution of the outcome variables or the functional form linking predictors to the outcome
+ - cart "learns" a piecewise approximation to $f(\cdot)$ by finding homogeneous subsets of the data conditional on the predictors
+ - Non-parametric: No assumptions about the distribution of the outcome variable only that the functional form can be approximated by a piecewise constant function
  - Works for continuous and discrete (ordered/unordered) outcomes
  
 # CART (How it works)
@@ -24,10 +24,10 @@
 
 # CART (Splitting)
 
-- Loss function ($L(.)$): "Node Impurity"
+- Loss function ($L(\cdot)$): "Node Impurity"
 - Can be measured in several ways
 - For categorical outcomes: Gini index, entropy, missclassification by majority vote
-- For continuous outcomes: Variance
+- For continuous outcomes: Variance (equivalent to MSE for piecewise constant functions)
 
 - At each node the split (which predictor and which value) that minimizes the impurity is selected
 - Gain from a split at value $c$ in variable $x$ is defined as:
