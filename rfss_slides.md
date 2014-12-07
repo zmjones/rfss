@@ -20,7 +20,7 @@ $$\mathbf{y} = f(\mathbf{X})$$
  
 # CART (How it works)
 
-![A classification tree on simulated data](figures/cart_visu.png)
+![A classification tree on simulated data](figures/cart.png)
 
 # CART (Splitting)
 
@@ -68,6 +68,10 @@ Bagging combined with (3) when (3) is random selection of predictors at each nod
  - Data are naively resampled (.632 subsamples) for growing trees
     + effects of this are not entirely clear yet, working on it!
 
+# Prediction
+
+![Predictive performance (RMSE) in the training data (left of the dotted line) and the test data (right of the dotted line) for a random forest, least angle regression (LARS), and a linear model fit by OLS.](figures/hr_pred.png)
+
 # Permutation Importance
 
 How much would generalization error increase if we didn't know about $\mathbf{x}_j$?
@@ -84,7 +88,7 @@ Where $L(\cdot)$ is a loss function such as $\mathbb{I}(y_i = \hat{y}_i)$ or $(y
 # Partial Dependence
 
 1. Let $\mathbf{x}_j$ be the predictor of interest, $\mathbf{X}_{-j}$ be the other predictors, $\mathbf{y}$ be the outcome, and $\hat{f}(\mathbf{X})$ the fitted forest.
- 2. For $\mathbf{x}_j$ sort the unique values $\mathcal{V} = \{\mathbf{x}_j\}_{i \in \{1, \ldots, n\}}$ resulting in $\mathcal{V}^*$, where $|\mathcal{V}^*|=K$. Create $K$ new matrices $\mathbf{X}^{(k)} = (\mathbf{x}_j = \mathcal{V}^*_k, \mathbf{X}_{-j})$.
+ 2. For $\mathbf{x}_j$ sort the unique values $\mathcal{V} = \{\mathbf{x}_j\}$ resulting in $\mathcal{V}^*$, where $|\mathcal{V}^*|=K$. Create $K$ new matrices $\mathbf{X}^{(k)} = (\mathbf{x}_j = \mathcal{V}^*_k, \mathbf{X}_{-j})$.
  3. Drop each of the $K$ new datasets, $\mathbf{X}^{(k)}$ down the fitted forest 
  resulting in a predicted value for each observation in all $k$ datasets: $\hat{\mathbf{y}}^{(k)} = f(\mathbf{X}^{(k)})$.
  4. Average the predictions in each of the $K$ datasets, $\hat{y}_k^* = \frac{1}{n}\sum_{i=1}^N \hat{y}_i^{(k)}$.
