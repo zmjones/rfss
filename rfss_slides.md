@@ -52,7 +52,7 @@ Bagging combined with (3) when (3) is random selection of predictors at each nod
 
 # Random Forests
 
-insert graph of node randomization
+![2 trees in a random forest grown data on state repression. Note that a random set of candidate variables are available for splitting at each node.](figures/rf.png)
 
 # Random Forest Function Approximation
 
@@ -62,9 +62,10 @@ insert graph of node randomization
 
  - State repression (1981-1999) country-year from a dynamic measurement model in Fariss (2014)
     + latent continuous measure that is nonstationary and trending upwards over time and is a near unit-root
+    + higher numbers mean more respect for physical integrity rights
  - Predictors are a subset of Hill and Jones (2014)
- - Substantial non-ignorable missingness handled via surrogate splitting
- - Data are naively resampled for growing trees
+ - Substantial non-ignorable missingness handled via surrogate splitting (ignored w/o dropping)
+ - Data are naively resampled (.632 subsamples) for growing trees
     + effects of this are not entirely clear yet, working on it!
 
 # Permutation Importance
@@ -83,10 +84,10 @@ Where $L(\cdot)$ is a loss function such as $\mathbb{I}(y_i = \hat{y}_i)$ or $(y
 # Partial Dependence
 
 1. Let $\mathbf{x}_j$ be the predictor of interest, $\mathbf{X}_{-j}$ be the other predictors, $\mathbf{y}$ be the outcome, and $\hat{f}(\mathbf{X})$ the fitted forest.
- 2. For $\mathbf{x}_j$ sort the unique values $\mathcal{V} = \{\mathbf{x}_j\}_{i \in \{1, \ldots, n\}}$ resulting in $\mathcal{V}^*$, where $|\mathcal{V}^*|=K$. Create $K$ new matrices $\mathbf{X}^{(k)} = (\mathbf{x}_j = \mathcal{V}^*_k, \mathbf{X}_{-j}), \: \forall \, k = (1, \ldots, K)$.
+ 2. For $\mathbf{x}_j$ sort the unique values $\mathcal{V} = \{\mathbf{x}_j\}_{i \in \{1, \ldots, n\}}$ resulting in $\mathcal{V}^*$, where $|\mathcal{V}^*|=K$. Create $K$ new matrices $\mathbf{X}^{(k)} = (\mathbf{x}_j = \mathcal{V}^*_k, \mathbf{X}_{-j})$.
  3. Drop each of the $K$ new datasets, $\mathbf{X}^{(k)}$ down the fitted forest 
- resulting in a predicted value for each observation in all $k$ datasets: $\hat{\mathbf{y}}^{(k)} = f(\mathbf{X}^{(k)}), \: \forall \, k = (1, \ldots, K)$.
- 4. Average the predictions in each of the $K$ datasets, $\hat{y}_k^* = \frac{1}{n}\sum_{i=1}^N \hat{y}_i^{(k)}, \: \forall \, k = (1, \ldots, K)$.
+ resulting in a predicted value for each observation in all $k$ datasets: $\hat{\mathbf{y}}^{(k)} = f(\mathbf{X}^{(k)})$.
+ 4. Average the predictions in each of the $K$ datasets, $\hat{y}_k^* = \frac{1}{n}\sum_{i=1}^N \hat{y}_i^{(k)}$.
  5. Visualize the relationship by plotting $\mathbf{V}^*$ against $\hat{\mathbf{y}}^*$.
 
 # Partial Dependence Example
