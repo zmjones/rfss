@@ -96,4 +96,13 @@ Where $L(\cdot)$ is a loss function such as $\mathbb{I}(y_i = \hat{y}_i)$ or $(y
 
 # Multivariate Partial Dependence
 
+# Interactions
+
+- Two way interactions can be detected visually through partial dependence plots
+- Or directly from the structure of each tree: minimal depth in maximal subtrees
+
+![The partial dependence for a pair of predictors to visualize interactive associations.](figures/interaction.png)
+
 # Conclusion
+
+
