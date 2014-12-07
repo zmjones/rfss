@@ -94,8 +94,6 @@ Where $L(\cdot)$ is a loss function such as $\mathbb{I}(y_i = \hat{y}_i)$ or $(y
 
 ![The partial dependence of several predictors on a continuous measure of state repression due to Fariss (2014).](figures/hr_pd.png)
 
-# Multivariate Partial Dependence
-
 # Interactions
 
 - Two way interactions can be detected visually through partial dependence plots
