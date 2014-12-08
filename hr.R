@@ -3,7 +3,7 @@ set.seed(1987)
 
 pkgs <- c("dplyr", "reshape2", "grid", "parallel", "ggplot2",
          "scales", "edarf", "Amelia", "doParallel",
-         "foreach", "iterators", "lars", "party")
+         "foreach", "iterators", "lars", "party", "e1071")
 invisible(lapply(pkgs, library, character.only = TRUE, quietly = TRUE))
 
 ## set global variables
@@ -34,7 +34,7 @@ ivar.labels <- c("Year", "INGOs", "Executive Compet.", "Executive Open.",
                  "Common Law", "CAT Ratifier",
                  "CCPR Ratifier", "Youth Bulge", "Ter. Revison.", "CIM", "CIE",
                  "US Sanction (lag)", "UN Sanction (lag)", "HR Sanctions",
-                "Non-HR Sanctions", "Civil War", "International War")
+                 "Non-HR Sanctions", "Civil War", "International War")
 form <- as.formula(paste0("mean ~", paste0(ivar, collapse = "+")))
 
 unbounded_ints <- which(colnames(df) %in% c("ccode", "year", "ingo_uia"))
@@ -86,28 +86,34 @@ pred_combine <- function(...) {
     apply(out, 1, mean)
 }
 
-ols <- foreach(d = df_mi_split, .combine = "pred_combine", .multicombine = TRUE) %do% {
+df$ols <- foreach(d = df_mi_split, .combine = "pred_combine") %do% {
     train <- d[[1]]
     test <- d[[2]]
     fit <- lm(form, train)
     c(fitted(fit), predict(fit, newdata = test))
 }
-df$ols <- ols
 
-lar <- foreach(d = df_mi_split, .combine = "pred_combine", .multicombine = TRUE) %do% {
+df$lar <- foreach(d = df_mi_split, .combine = "pred_combine") %do% {
     train <- d[[1]]
     test <- d[[2]]
     predict_lars(as.matrix(train[, ivar]), train$mean, as.matrix(test[, ivar]))
 }
-df$lar <- lar
+
+df$svm <- foreach(d = df_mi_split, .combine = "pred_combine") %do% {
+    train <- d[[1]]
+    test <- d[[2]]
+    fit <- svm(train[, ivar], train$mean)
+    c(fitted(fit), predict(fit, newdata = test[, ivar]))
+}
 
 rf <- cforest(form, df_split$train, controls = cforest_unbiased(mtry = MTRY, ntree = TREES))
 df$rf <- as.numeric(predict(rf, newdata = df))
 
 out <- data.frame("OLS (imputed)" = get_rmse(df, "ols"),
-                 "LARS (imputed)" = get_rmse(df, "lar"),
-                 "Random Forest" = get_rmse(df, "rf"),
-                 "year" = seq(min(df$year), max(test$year)), check.names = FALSE)
+                  "LARS (imputed)" = get_rmse(df, "lar"),
+                  "SVM (imputed)" = get_rmse(df, "svm"),
+                  "Random Forest" = get_rmse(df, "rf"),
+                  "year" = seq(min(df$year), max(test$year)), check.names = FALSE)
 out <- melt(out, id.vars = "year")
 
 p <- ggplot(out, aes(year, value, colour = variable))
@@ -126,7 +132,7 @@ imp <- data.frame("point" = imp)
 imp$variable <- ivar.labels
 imp$variable <- factor(imp$variable, levels = imp$variable[order(imp$point)])
 p <- ggplot(imp, aes(variable, point))
-p <- p + geom_point()
+p <- p + geom_bar(stat = "identity")
 p <- p + scale_y_continuous(breaks = pretty_breaks())
 p <- p + geom_hline(aes(yintercept = 0), linetype = "dashed")
 p <- p + labs(y = "Mean Increase in MSE after Permutation")

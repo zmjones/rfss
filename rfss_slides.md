@@ -61,16 +61,14 @@ Bagging combined with (3) when (3) is random selection of predictors at each nod
 # Example Data
 
  - State repression (1981-1999) country-year from a dynamic measurement model in Fariss (2014)
-    + latent continuous measure that is nonstationary and trending upwards over time and is a near unit-root
     + higher numbers mean more respect for physical integrity rights
  - Predictors are a subset of Hill and Jones (2014)
  - Substantial non-ignorable missingness handled via surrogate splitting (ignored w/o dropping)
  - Data are naively resampled (.632 subsamples) for growing trees
-    + effects of this are not entirely clear yet, working on it!
 
 # Prediction
 
-![Predictive performance (RMSE) in the training data (left of the dotted line) and the test data (right of the dotted line) for a random forest, least angle regression (LARS), and a linear model fit by OLS.](figures/hr_pred.png)
+![Predictive performance (RMSE) in the training data (left of the dotted line) and the test data (right of the dotted line) for a random forest, least angle regression (LARS), a linear model fit by OLS, and a support vector machine (SVM).](figures/hr_pred.png)
 
 # Permutation Importance
 
@@ -84,6 +82,8 @@ $$\text{VI}(\mathbf{x}_j) = \frac{1}{T} \sum_{t=1}^T \text{VI}^{(t)}(\mathbf{x}_
 Where $L(\cdot)$ is a loss function such as $\mathbb{I}(y_i = \hat{y}_i)$ or $(y_i - \hat{y}_i)^2$.
 
 # Permutation Importance Example
+
+![Permutation importance (top ten shown) for predictors of state repression. The dot shows the expected proportional increase in mean squared error.](figures/hr_imp.png)
 
 # Partial Dependence
 
@@ -107,4 +107,11 @@ Where $L(\cdot)$ is a loss function such as $\mathbb{I}(y_i = \hat{y}_i)$ or $(y
 
 # Conclusion
 
+ - postives
+    + powerful at prediction tasks
+    + intuitive means of substantive interpretation
+    + scalable (up and down)
 
+ - negatives
+    + no use of dependency structure
+	+ statistical theory still being developed
