@@ -83,7 +83,7 @@ Where $L(\cdot)$ is a loss function such as $\mathbb{I}(y_i = \hat{y}_i)$ or $(y
 
 # Permutation Importance Example
 
-![Permutation importance (top ten shown) for predictors of state repression. The dot shows the expected proportional increase in mean squared error.](figures/hr_imp.png)
+![Permutation importance (top ten shown) for predictors of state repression. The dot shows the mean increase (across trees) in mean squared error.](figures/hr_imp.png)
 
 # Partial Dependence
 
