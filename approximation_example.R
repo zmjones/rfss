@@ -2,10 +2,11 @@ set.seed(1988)
 
 library(party)
 library(ggplot2)
+library(reshape2)
 
 n <- 200
 x <- runif(n, -4, 4)
-y <- sin(x)
+y <- sin(x) + rnorm(n, 0, 0.2)
 df <- data.frame(x, y)
 object <- party:::ctreedpp(y ~ x, df)
 
@@ -16,7 +17,7 @@ p <- ggplot(df, aes(x, y))
 p <- p + geom_point(alpha = .5)
 p <- p + geom_line(aes(x, tree), colour = "blue")
 p <- p + theme_bw()
-ggsave("figures/cart_approximation.png", p, width = 8, height = 4)
+ggsave("figures/cart_approximation.png", p, width = 10, height = 5)
 
 fit_forest <- cforest(y ~ x, df, control = cforest_unbiased(mtry = 1))
 df <- sapply(fit_forest@ensemble, function(x)
@@ -33,6 +34,6 @@ p <- p + geom_point()
 p <- p + geom_line(aes(x, forest), colour = "red")
 p <- p + geom_line(aes(x, value), alpha = .15, colour = "blue")
 p <- p + theme_bw()
-ggsave("figures/forest_approximation.png", p, width = 8, height = 4)
+ggsave("figures/forest_approximation.png", p, width = 10, height = 5)
 
 
