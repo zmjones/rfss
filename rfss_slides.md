@@ -13,6 +13,7 @@
 # CART (Overview)
 
 $$\mathbf{y} = f(\mathbf{X})$$
+
  - Non-parametric: No assumptions about the distribution of the outcome variable; only that the functional form can be approximated by a piecewise constant function
  - Works for continuous and discrete (ordered/unordered) outcomes
  - CART "learns" a piecewise approximation to $f(\cdot)$ by finding homogeneous subsets of the data conditional on the predictors
@@ -41,7 +42,7 @@ $$\mathbf{y} = f(\mathbf{X})$$
  - problems with correlated and weak predictors
  - ensembles of decision trees are used to mitigate these problems
 
-  1. bagging (resample data, fit a tree to each replicate, average over trees )
+  1. bagging (resample data, fit a tree to each replicate, average over trees)
   2. random selection of predictors at each split
 
 Bagging combined with random selection of predictors gives random forests
@@ -52,7 +53,7 @@ Bagging combined with random selection of predictors gives random forests
 
 # Random Forest Function Approximation
 
-![25 randomly selected trees (shown in blue) in a random forest (prediction shown in red) each grown with a subsample (Efron's .632 bootstrap) of the training data.](figures/forest_approximation.png)
+![25 randomly selected trees (shown in blue) in a random forest (prediction shown in red) each grown with a .632 subsample of the training data.](figures/forest_approximation.png)
 
 # Example Data
 
@@ -96,10 +97,7 @@ Where $L(\cdot)$ is a loss function such as $\mathbb{I}(y_i = \hat{y}_i)$ or $(y
 
 # Interactions
 
-- Two way interactions can be detected visually through partial dependence plots
-- Or directly from the structure of each tree: minimal depth in maximal subtrees
-
-![The partial dependence for a pair of predictors to visualize interactive associations. Data generated from $y \sim N(\mu, \sigma^2)$ $\mu = 10x_1 * x_2 + 5x_3 + 5x_4$](figures/interaction.png)
+![The partial dependence for a pair of predictors to visualize interactive associations. Data generated from $\mathbf{y} \sim \mathcal{N}(\boldsymbol\mu, \sigma^2)$ $\boldsymbol\mu = 10\mathbf{x}_1 \mathbf{x}_2 + 5\mathbf{x}_3 + \mathbf{x}_4$](figures/interaction.png)
 
 # Conclusion
 
