@@ -2,6 +2,9 @@ rfss_manuscript.pdf: rfss_manuscript.md
 	pandoc $< -o $@ --bibliography=rfss.bib -V geometry:margin=1.25in
 	cp $@ ~/Dropbox/zach_frido/
 
+rfss_manuscript.tex: rfss_manuscript.md
+	pandoc $< -o $@ --bibliography=rfss.bib -s -V geometry:margin=1.25in
+
 rfss_slides.pdf: rfss_slides.md
 	pandoc -t beamer $< -o $@
 	cp $@ ~/Dropbox/zach_frido/
