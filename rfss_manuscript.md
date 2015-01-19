@@ -1,4 +1,4 @@
-% Random Forests for Political Science
+% Random Forests for the Social Sciences
 % Zachary Jones and Fridolin Linder[^contact]
 
 [^contact]: Zachary M. Jones is a Ph.D. student in political science at Pennsylvania State University ([zmj@zmjones.com](mailto:zmj@zmjones.com)). Fridolin Linder is a Ph.D. student in political science at Pennsylvania State University ([fridolin.linder@gmail.com](mailto:fridolin.linder@gmail.com)).

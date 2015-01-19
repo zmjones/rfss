@@ -1,4 +1,4 @@
-% Random Forests for Exploratory Data Analysis
+% Random Forests for the Social Sciences
 % Zachary M. Jones and Fridolin Linder
 
 # Motivation
