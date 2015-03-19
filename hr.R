@@ -77,7 +77,7 @@ imp$labels <- factor(imp$labels, levels = imp$labels[order(imp$imp)])
 ggplot(imp, aes(labels, imp)) +
     geom_point() + theme_bw() +
         theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
-            labs(y = "Permutation Importance", x = "Features")
+            labs(y = "Permutation Importance", x = "Variables")
 ggsave("figures/latent_imp.png", width = 10, height = 6)
 
 top <- ivar[ivar %in% imp$features[order(imp$imp, decreasing = TRUE)][1:12]]
@@ -88,8 +88,8 @@ pd$labels <- imp$labels[match(pd$variable, imp$features)]
 ggplot(pd, aes(value, latent)) + geom_point() + geom_line() +
     geom_errorbar(aes(ymin = low, y = latent, ymax = high), alpha = .25) +
         facet_wrap(~ labels, scales = "free") +
-            labs(x = "feature value", y = "country mean latent respect",
-                 title = "partial dependence of top features") + theme_bw()
+            labs(x = "value", y = "country mean latent respect",
+                 title = "Partial Dependence of Top Variables") + theme_bw()
 ggsave("figures/latent_pd.png", width = 10, height = 8)
 
 pca <- prcomp(proximity(fit), scale. = TRUE)
