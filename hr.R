@@ -1,183 +1,98 @@
-rm(list = ls())
 set.seed(1987)
 
-pkgs <- c("dplyr", "reshape2", "grid", "parallel", "ggplot2",
-         "scales", "edarf", "Amelia", "doParallel",
-         "foreach", "iterators", "lars", "party", "e1071")
-invisible(lapply(pkgs, library, character.only = TRUE, quietly = TRUE))
+library(party)
+library(ggplot2)
+library(edarf)
+library(xtable)
+library(countrycode)
+library(doParallel)
+library(dplyr)
 
-## set global variables
-CORES <- 8
-TREES <- 1000 ## number of trees in forest
-MTRY <- 5 ## number of predictors selected at each node
-WINDOW <- 6 ## number of years in the test set
-POINTS <- 24 ## number of points to sample for partial dependence
-SAMP <- 500 ## number of draws to take from latent outcome variable
-MI_ITER <- 10 ## number of imputations
-
-cl <- makeCluster(CORES)
+cl <- makeCluster(8, "FORK")
 registerDoParallel(cl)
 
-## load data
-## hro_shaming_lag, avmdia_lag, ainr_lag, aibr_lag
-df <- read.table("data/eeesr.csv", TRUE, ",")[, c(1:3,5:8,14,16:28,31,33:38,40:47)]
-colnames(df)[26:27] <- c("mean", "sd")
-df <- df[!is.na(df$mean) & !is.na(df$sd), ]
+df <- read.csv("data/eeesr.csv")
 
-ivar <- colnames(df)[!colnames(df) %in% c("ccode", "country", "mean", "sd")]
-ivar.labels <- c("Year", "INGOs", "Executive Compet.", "Executive Open.",
-                 "Executive Const.", "Participation Compet.", "Judicial Indep.",
-                 "Population", "GDP per capita", "Oil Rents", "Military Regime",
-                 "Left Executive", "log Trade/GDP", "FDI",
-                 "Public Trial", "Fair Trial", "Court Decision Final", "Legislative Approval",
-                 "IMF Structural Adj.", "WB Structural Adj.",
-                 "Common Law", "CAT Ratifier",
-                 "CCPR Ratifier", "Youth Bulge", "Ter. Revison.", "CIM", "CIE",
-                 "US Sanction (lag)", "UN Sanction (lag)", "HR Sanctions",
-                 "Non-HR Sanctions", "Civil War", "International War")
-form <- as.formula(paste0("mean ~", paste0(ivar, collapse = "+")))
+plt <- df %>% group_by(year) %>% summarise(mean = mean(latent))
+ggplot(plt, aes(year,  mean)) + geom_point() + geom_line()
 
-unbounded_ints <- which(colnames(df) %in% c("ccode", "year", "ingo_uia"))
-bounds <- foreach(i = 1:ncol(df), .combine = "cbind") %do% {
-    if (is.integer(df[, i]) & !(i %in% unbounded_ints))
-        c("column" = i, "lower" = min(df[, i], na.rm = TRUE), "upper" = max(df[, i], na.rm = TRUE))
-}
-bounds <- t(bounds)
+df <- df %>% select(-one_of("latent_lag", "physint_lag", "amnesty_lag", "year",
+                            "physint", "parcomp", "disap", "kill", "polpris", "tort", "amnesty",
+                            "disap_lag", "kill_lag", "polpris_lag", "tort_lag", "latent_sd",
+                            "hro_shaming_lag", "avmdia_lag", "ainr_lag", "aibr_lag", "polity2",
+                            "cwar", "wbimfstruct", "lagus", "lagun", "iwar"))
 
-df_mi <- amelia(df, 5, p2s = 0, ts = "year", cs = "ccode", splinetime = 4,
-               logs = c("gdppc", "pop", "rentspc"),
-               noms = c("terrrev", "imfstruct", "structad"),
-               ords = c("nonhrordinal", "hrordinal", "lagun", "lagus",
-                   "legislative_ck", "final_decision", "fair_trial", "public_trial",
-                   "injud", "parcomp", "xconst", "xropen", "xrcomp"),
-               bounds = bounds)
+df <- df %>% mutate(gdppc = log(gdppc), pop = log(pop)) %>%
+    group_by(ccode) %>%
+        summarise_each(funs(mean(., na.rm = TRUE))) %>%
+            mutate_each(funs(ifelse(is.nan(.), NA, .)))
+df <- as.data.frame(df)
+ivar <- colnames(df)[!(colnames(df) %in% c("ccode", "latent"))]
+form <- as.formula(paste0("latent ~ ", paste0(ivar, collapse = " + ")))
+ntree <- 1000
+mtry <- 3
+fit <- cforest(form, df, controls = cforest_unbiased(mtry = mtry, ntree = ntree))
 
-split_data <- function(df) {
-    train <- df[df$year < max(df$year) - WINDOW, ]
-    test <- df[!(row.names(df) %in% row.names(train)), ]
-    list("train" = train, "test" = test)
-}
+pred <- var_est(fit, df)
+cl <- qnorm(.025, lower.tail = FALSE)
+se <- sqrt(pred$variance)
+pred$low <- pred$latent - cl * se
+pred$high <- pred$latent + cl * se
+pred$truth <- df$latent
+pred$name <- countrycode(df$ccode, "cown", "country.name")
+pred$error <- factor(ifelse(pred$latent - pred$truth > 0,
+                            "less respect than expected", "more respect than expected"))
+mse <- mean((pred$latent - pred$truth)^2)
+mae <- mean(abs(pred$latent - pred$truth))
+perf <- paste0("MSE = ", round(mse, 2), "\nMAE = ", round(mae, 2))
+out <- pred[abs(pred$latent - pred$truth) > sd(pred$truth), c(1,3:6)]
+row.names(out) <- out$name
+out$name <- NULL
+xtable(out, digits = 3)
 
-## split data into train and test sets and create model formula
-df_split <- split_data(df)
-df_mi_split <- lapply(df_mi$imputations, split_data)
-
-predict_lars <- function(X, y, newX) {
-    cv_res <- cv.lars(X, y, type = "lasso", mode = "fraction", plot = FALSE)
-    opt_frac <- min(cv_res$cv) + sd(cv_res$cv)
-    opt_frac <- cv_res$index[which(cv_res$cv < opt_frac)][[1]]
-    lasso_path <- lars(X, y, type = "lasso")
-    lasso_fit <- predict.lars(lasso_path, type = "coefficients", mode = "fraction", s = opt_frac)
-    rbind(X, newX) %*% coef(lasso_fit)
-}
-
-get_rmse <- function(df, label) {
-    sapply(seq(min(df$year), max(df$year)),
-           function(year) loss(df[df$year == year, label], df[df$year == year, "mean"]))
-}
-
-## function to calculate rmse
-loss <- function(yhat, y) {
-    sqrt(mean((y - yhat)^2))
-}
-
-pred_combine <- function(...) {
-    out <- do.call("cbind", list(...))
-    apply(out, 1, mean)
-}
-
-df$ols <- foreach(d = df_mi_split, .combine = "pred_combine") %do% {
-    train <- d[[1]]
-    test <- d[[2]]
-    fit <- lm(form, train)
-    c(fitted(fit), predict(fit, newdata = test))
-}
-
-df$lar <- foreach(d = df_mi_split, .combine = "pred_combine") %do% {
-    train <- d[[1]]
-    test <- d[[2]]
-    predict_lars(as.matrix(train[, ivar]), train$mean, as.matrix(test[, ivar]))
-}
-
-df$svm <- foreach(d = df_mi_split, .combine = "pred_combine") %do% {
-    train <- d[[1]]
-    test <- d[[2]]
-    fit <- svm(train[, ivar], train$mean)
-    c(fitted(fit), predict(fit, newdata = test[, ivar]))
-}
-
-rf <- cforest(form, df_split$train, controls = cforest_unbiased(mtry = MTRY, ntree = TREES))
-df$rf <- as.numeric(predict(rf, newdata = df))
-
-out <- data.frame("OLS (imputed)" = get_rmse(df, "ols"),
-                  "LARS (imputed)" = get_rmse(df, "lar"),
-                  "SVM (imputed)" = get_rmse(df, "svm"),
-                  "Random Forest" = get_rmse(df, "rf"),
-                  "year" = seq(min(df$year), max(test$year)), check.names = FALSE)
-out <- melt(out, id.vars = "year")
-
-p <- ggplot(out, aes(year, value, colour = variable))
-p <- p + geom_point()
-p <- p + geom_line()
-p <- p + geom_vline(aes(xintercept = min(df_split$test$year)), linetype = "dotted")
-p <- p + labs(x = "Year", y = "RMSE")
-p <- p + scale_colour_brewer(name = "", type = "qual", palette = 2)
-p <- p + theme_bw()
-ggsave("figures/hr_pred.png", p, width = 12, height = 6)
-
-fit <- cforest(form, df, controls = cforest_unbiased(mtry = MTRY, ntree = TREES))
+ggplot(pred, aes(truth, latent, ymax = Inf, ymin = -Inf)) + geom_point(position = "dodge") +
+    geom_text(data = pred[abs(pred$latent - pred$truth) > sd(pred$truth), ],
+              aes(truth, latent, label = name, colour = error),
+              size = 3, hjust = 0, vjust = 0, position = "dodge") +
+                  geom_errorbar(aes(ymin = low, y = latent, ymax = high), alpha = .25) +
+                      geom_abline(aes(intercept = 0, slope = 1), colour = "blue") +
+                          labs(x = "Latent Mean by Country (over time)", y = "Predicted Country Mean",
+                               title = "Mean Country Levels versus Predicted Country Levels") +
+                                   annotate("text", 3.5, -1, label = perf) +
+                                       theme_bw() + theme(legend.position = "bottom")
+ggsave("figures/latent_pred.png", width = 10, height = 6)
 
 imp <- varimp(fit)
-imp <- data.frame("point" = imp)
-imp$variable <- ivar.labels
-imp$variable <- factor(imp$variable, levels = imp$variable[order(imp$point)])
-p <- ggplot(imp, aes(variable, point))
-p <- p + geom_bar(stat = "identity")
-p <- p + scale_y_continuous(breaks = pretty_breaks())
-p <- p + labs(y = "Mean Increase in MSE after Permutation")
-p <- p + theme_bw()
-p <- p + theme(plot.margin = unit(rep(.15, 4), "in"), axis.title.y = element_blank())
-p <- p + coord_flip()
-ggsave("figures/hr_imp.png", p, width = 6, height = 8)
+imp <- data.frame(imp, features = names(imp),
+                  labels = c("INGOs", "Executive Compet.", "Executive Open.",
+                 "Executive Const.", "Judicial Indep.", "log Population", "log GDP per cap.",
+                 "Oil Rents", "Military Regime", "Left Executive", "Trade/GDP", "FDI",
+                 "Public Trial", "Fair Trial", "Court Decision Final", "Legislative Approval",
+                 "IMF Structural Adj.", "WB Structural Adj.",
+                 "British Colony", "Common Law", "PTA w/ HR Clause", "CAT Ratifier",
+                 "CCPR Ratifier", "Youth Bulge", "Ter. Revison.", "Rule of Law", "CIM", "CIE",
+                 "HR Sanctions", "Non-HR Sanctions"))
+imp$labels <- factor(imp$labels, levels = imp$labels[order(imp$imp)])
 
-pd <- foreach(x = ivar, .inorder = FALSE, .packages = c("party", "edarf"), .combine = "rbind") %dopar% {
-    out <- partial_dependence(fit, df, x, POINTS, TRUE, FALSE)
-    colnames(out)[1] <- "rng"
-    out$x <- x
-    out$labels <- ivar.labels[match(x, ivar)]
-    out$pred <- as.numeric(out$pred)
-    out$rng <- as.numeric(out$rng)
-    row.names(out) <- NULL
-    out
-}
-save(pd, file = "rep/hr_pd.RData")
+ggplot(imp, aes(labels, imp)) +
+    geom_point() + coord_flip() + theme_bw() +
+        labs(y = "Permutation Importance", x = "Features")
+ggsave("figures/latent_imp.png", width = 6, height = 10)
 
-log_vars <- c("pop", "gdppc", "rentspc")
-fixes <- pd %>%
-    filter(x %in% log_vars) %>%
-    mutate(rng = log(rng), labels = paste("log", labels))
-pd <- rbind(pd %>% filter(!(x %in% log_vars)), fixes)
+top <- ivar[ivar %in% imp$features[order(imp$imp, decreasing = TRUE)][1:12]]
+pd <- partial_dependence(fit, top, interaction = FALSE, ci = TRUE, parallel = TRUE)
+attributes(pd)$interaction <- FALSE ## bug
+pd$labels <- imp$labels[match(pd$variable, imp$features)]
 
-vars <- c("ythblgap", "xrcomp", "parcomp", "pop", "ingo_uia", "CIE")
-pd_main <- pd %>% filter(x %in% vars)
-pd_appendix <- pd %>% filter(!(x %in% vars))
-p <- ggplot(pd_main, aes(rng, pred))
-p <- p + facet_wrap(~ labels, ncol = 3, scales = "free")
-p <- p + geom_point()
-p <- p + geom_line()
-p <- p + scale_y_continuous(breaks = pretty_breaks(n = 7))
-p <- p + labs(x = "Predictor Scale",
-              y = "Latent Respect for Physical Integrity Rights")
-p <- p + theme_bw()
-ggsave("figures/hr_pd.png", p, width = 10, height = 6)
+ggplot(pd, aes(value, latent)) + geom_point() + geom_line() +
+    geom_errorbar(aes(ymin = low, y = latent, ymax = high), alpha = .25) +
+        facet_wrap(~ labels, scales = "free") +
+            labs(x = "feature value", y = "country mean latent respect",
+                 title = "partial dependence of top features") + theme_bw()
+ggsave("figures/latent_pd.png", width = 10, height = 8)
 
-## plot all two-way partial dependencies for the appendix
-p <- ggplot(pd_appendix, aes(rng, pred))
-p <- p + facet_wrap(~ labels, ncol = 4, scales = "free")
-p <- p + geom_point()
-p <- p + geom_line()
-p <- p + scale_x_continuous(breaks = pretty_breaks())
-p <- p + labs(x = "Predictor Scale",
-              y = "Latent Respect for Physical Integrity Rights")
-p <- p + theme_bw()
-ggsave("figures/hr_pd_all.png", p, width = 10, height = 12)
+pca <- prcomp(proximity(fit), scale. = TRUE)
+ggbiplot::ggbiplot(pca, obs.scale = 1, var.scale = 1, var.axes = FALSE,
+                   labels = countrycode(df$ccode, "cown", "country.name"), varname.size = 2) +
+    labs(title = "latent country similarity") + theme_bw()
+ggsave("figures/latent_prox.png", width = 8, height = 8)

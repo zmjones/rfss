@@ -154,6 +154,32 @@ Lastly we examine how well the model does at predicting latent respect for physi
 
 [^rmse]: $\text{RMSE}(\mathbf{y}, \hat{\mathbf{y}}) = \sqrt{\frac{1}{n}\sum_{i=1}^n (y_i - \hat{y}_i)^2}$.
 
+##
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrrrr}
+  \hline
+ & latent & low & high & truth \\ 
+  \hline
+Netherlands & 1.849 & 1.623 & 2.076 & 3.490 \\ 
+  Luxembourg & 1.748 & 1.481 & 2.015 & 3.764 \\ 
+  Andorra & 1.166 & 0.890 & 1.442 & 2.583 \\ 
+  Bosnia and Herzegovina & -0.030 & -0.282 & 0.221 & -1.378 \\ 
+  Iceland & 1.730 & 1.435 & 2.025 & 3.913 \\ 
+  Angola & -0.275 & -0.622 & 0.072 & -1.705 \\ 
+  Iraq & -0.521 & -0.720 & -0.322 & -2.084 \\ 
+  Israel & 0.745 & 0.456 & 1.035 & -0.870 \\ 
+  Afghanistan & -0.338 & -0.559 & -0.117 & -2.431 \\ 
+  Mongolia & 0.310 & 0.007 & 0.613 & 1.664 \\ 
+  Sri Lanka & 0.064 & -0.212 & 0.340 & -1.633 \\ 
+  New Zealand & 1.754 & 1.448 & 2.061 & 3.706 \\ 
+  Kiribati & 1.077 & 0.812 & 1.341 & 2.679 \\ 
+  Tonga & 1.051 & 0.788 & 1.314 & 2.795 \\ 
+   \hline
+\end{tabular}
+\end{table}
+
 ## Conclusion
 
 In situations where relevant theory says little about the functional form of the relationship of interest, the magnitude and degree of nonlinearity and interaction is unknown, the number of possibly relevant predictors is large, or when prediction is important, random forests may be more useful than a generalized linear model. We believe that this situation is common, especially in comparative politics and international relations.
