@@ -75,9 +75,10 @@ imp <- data.frame(imp, features = names(imp),
 imp$labels <- factor(imp$labels, levels = imp$labels[order(imp$imp)])
 
 ggplot(imp, aes(labels, imp)) +
-    geom_point() + coord_flip() + theme_bw() +
-        labs(y = "Permutation Importance", x = "Features")
-ggsave("figures/latent_imp.png", width = 6, height = 10)
+    geom_point() + theme_bw() +
+        theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
+            labs(y = "Permutation Importance", x = "Features")
+ggsave("figures/latent_imp.png", width = 10, height = 6)
 
 top <- ivar[ivar %in% imp$features[order(imp$imp, decreasing = TRUE)][1:12]]
 pd <- partial_dependence(fit, top, interaction = FALSE, ci = TRUE, parallel = TRUE)
