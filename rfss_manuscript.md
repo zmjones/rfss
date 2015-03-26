@@ -12,6 +12,7 @@ Machine learning techniques gain in popularity in many disciplines and increased
 Political scientists have, in recent years, begun to utilize more flexible algorithmic methods for inferring substantive relationships from data [@beck1998beyond; @beck2000improving; @hainmueller2013kernel; @hill2014empirical]. These methods can often outperform more commonly used regression methods at predicting data not used to fit the model, which is useful for policymakers and serves as a useful check of the explanatory power of our theories [@hill2014empirical]. Many of these methods are commonly thought of as "black box," that is, they predict well, but do not permit substantive interpretation [@breiman2001statistical].
 
 We show that this is *not* the case with a method that has not been widely used in political science so far[EXCEPTIONS]: random forests [@breiman2001random]. Random forests allow to approximate arbitrary functional forms, can be used with continuous, discrete, and censored (survival) outcomes and permit substantive interpretation via permutation importance measures and the partial dependence algorithm.
+<<<<<<< HEAD
 
 Because political scientists often work with data originating from very complex data generating processes in observational settings, these features can be especially useful for our discipline. They are valuable in settings where relevant theory says little about the functional form of the relationships of interest, when the magnitude and degree of nonlinearity and interaction is unknown, when the number of possibly relevant predictors is large, and when prediction is important.
 
@@ -20,6 +21,14 @@ Random forests can approximate many nonmonotone, nonlinear functional forms. Int
 We will give a short introcuction to classification and regression trees (CART), the basic components of random forests and then describe their combination into an ensemble that is the random forest. We will then focus on methods that can be used to obtain substantive interpretations for exploratory data analysis (EDA) from random forests in conjuncction with a new software package that makes such analyses easily accessible for applied researchers. We will illustrate the practical application of these methods using data on the respect for human rights and potential country level predictors. 
 
 
+=======
+
+Because political scientists often work with data originating from very complex data generating processes in observational settings, these features can be especially useful for our discipline. They are valuable in settings where relevant theory says little about the functional form of the relationships of interest, when the magnitude and degree of nonlinearity and interaction is unknown, when the number of possibly relevant predictors is large, and when prediction is important.
+
+Random forests can approximate many nonmonotone, nonlinear functional forms. Interactions and nonlinearities are identified without prespecification, which decreases prediction error and allows researchers to study the relationships discovered by the algorithm. Furthermore, random forests allfow the inclusion of more predictors than observations. Related issues such as a highly correlated predictors are not an issue for random forests. Prediction is important for theory evaluation and for policymakers, and random forests' predictive performance relative to common parametric regression methods and other nonparametric methods is very strong.
+
+We will give a short introcuction to classification and regression trees (CART), the basic components of random forests and then describe their combination into an ensemble that is the random forest. We will then focus on methods that can be used to obtain substantive interpretations for exploratory data analysis (EDA) from random forests in conjuncction with a new software package that makes such analyses easily accessible for applied researchers. We will illustrate the practical application of these methods using data on the respect for human rights and potential country level predictors. 
+>>>>>>> a86e9e3b144af8bddc2e6099ae15e81814bb4e46
 
 ## Classification and Regression Trees
 
