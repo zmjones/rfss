@@ -3,6 +3,7 @@ set.seed(1987)
 library(party)
 library(edarf) ## devel version
 library(ggplot2)
+library(gridExtra)
 library(dplyr)
 library(doParallel)
 
@@ -16,14 +17,14 @@ df <- df %>% mutate(treatment_ordered = factor(treatment_ordered,
                         labels = c("none", "assurance", "assurance expanded")),
                     registered = factor(registered, labels = c("not registered", "registered")),
                     vote = factor(v_pres_general_12, labels = c("no vote", "vote")),
-                    v08 = as.integer(v08),
-                    returned = as.integer(returned),
+                    v08 = factor(v08, labels = c("no", "yes")),
+                    returned = factor(returned, labels = c("no", "yes")),
                     returntoprison = as.integer(returntoprison),
                     ageonelecday = as.numeric(ageonelecday),
                     crime = as.factor(tolower(f_contype)),
                     daysserved = as.numeric(f_daysserved),
                     timesincerelease = as.numeric(timesincerelease))
-df <- df %>% filter(returntoprison == 0, returned == 0) %>% select(-one_of(drop))
+df <- df %>% filter(returntoprison == 0, returned == "no") %>% select(-one_of(drop))
 
 ## fit random forests to each outcome
 skip <- which(colnames(df) %in% c("vote", "registered"))
@@ -122,10 +123,49 @@ plot_pd(pd_int_cond_vote, facet_var = "labels", xlab = xlab,
         ylab = "Predicted Probability of Voting Given Registration")
 ggsave("figures/pd_int_cond_vote.png", width = 10, height = 5)
 
-## prox_registered <- extract_proximity(fit_registered)
-## prox_vote <- extract_proximity(fit_vote)
-## prox_cond_vote <- extract_proximity(fit_cond_vote)
+prox_registered <- extract_proximity(fit_registered)
+prox_vote <- extract_proximity(fit_vote)
+prox_cond_vote <- extract_proximity(fit_cond_vote)
 
-## plot_prox(prox_registration)
-## plot_prox(prox_vote)
-## plot_prox(prox_cond_vote)
+pca_registered <- prcomp(prox_registered)
+pca_vote <- prcomp(prox_vote)
+pca_cond_vote <- prcomp(prox_cond_vote)
+
+p1 <- plot_prox(pca_registered, alpha = .95,
+                color = df$treatment_ordered, color_label = "Treatment",
+                shape = df$v08, shape_label = "Voted in 2008",
+                size = df$ageonelecday, size_label = "Age on Election Day",
+                title = "Latent Similarity of Individuals on Predictors of Registration")
+p2 <- plot_prox(pca_registered, alpha = .95,
+                color = df$vote, color_label = "Vote",
+                shape = df$v08, shape_label = "Voted in 2008",
+                size = df$ageonelecday, size_label = "Age on Election Day")
+png("figures/prox_registered.png", width = 10, height = 15, units = "in", res = 300)
+grid.arrange(p1, p2, ncol = 1)
+dev.off()
+
+p1 <- plot_prox(pca_vote, alpha = .95,
+                color = df$treatment_ordered, color_label = "Treatment",
+                shape = df$v08, shape_label = "Voted in 2008",
+                size = df$ageonelecday, size_label = "Age on Election Day",
+                title = "Latent Similarity of Individuals on Predictors of Voting")
+p2 <- plot_prox(pca_vote, alpha = .95,
+                color = df$vote, color_label = "Vote",
+                shape = df$v08, shape_label = "Voted in 2008",
+                size = df$ageonelecday, size_label = "Age on Election Day")
+png("figures/prox_vote.png", width = 10, height = 15, units = "in", res = 300)
+grid.arrange(p1, p2, ncol = 1)
+dev.off()
+
+p1 <- plot_prox(pca_cond_vote, alpha = .5,
+                color = df$treatment_ordered[df$registered == "registered"], color_label = "Treatment",
+                shape = df$v08[df$registered == "registered"], shape_label = "Voted in 2008",
+                size = df$ageonelecday[df$registered == "registered"], size_label = "Age on Election Day",
+                title = "Latent Similarity of Individuals on Predictors of Voting Given Registration")
+p2 <- plot_prox(pca_cond_vote, alpha = .5,
+                color = df$vote[df$registered == "registered"], color_label = "Voted in 2012",
+                shape = df$v08[df$registered == "registered"], shape_label = "Voted in 2008",
+                size = df$ageonelecday[df$registered == "registered"], size_label = "Age on Election Day")
+png("figures/prox_cond_vote.png", width = 10, height = 15, units = "in", res = 300)
+grid.arrange(p1, p2, ncol = 1)
+dev.off()
