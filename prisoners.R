@@ -85,11 +85,11 @@ plot_pd(pd_cond_vote, facet_var = "labels",
 ggsave("figures/pd_cond_vote.png", width = 10, height = 8)
 
 ## compute interactions with treatment
-pd_int_registered <- partial_dependence(fit_registered, var = c("treatment_ordered", "ageonelecday"),
+pd_int_registered <- partial_dependence(fit_registered, var = c("treatment_ordered", "timesincerelease"),
                                         interaction = TRUE, parallel = TRUE, type = "prob")
-pd_int_vote <- partial_dependence(fit_vote, var = c("treatment_ordered", "ageonelecday"),
+pd_int_vote <- partial_dependence(fit_vote, var = c("treatment_ordered", "timesincerelease"),
                                   interaction = TRUE, parallel = TRUE, type = "prob")
-pd_int_cond_vote <- partial_dependence(fit_cond_vote, var = c("ageonelecday", "treatment_ordered"),
+pd_int_cond_vote <- partial_dependence(fit_cond_vote, var = c("treatment_ordered", "timesincerelease"),
                                        interaction = TRUE, parallel = TRUE, type = "prob")
 
 ## hacking edarf to fix this case
@@ -114,7 +114,7 @@ pd_int_vote$treatment_ordered <- factor(pd_int_vote$treatment_ordered,
 pd_int_cond_vote$treatment_ordered <- factor(pd_int_cond_vote$treatment_ordered,
                                              labels = c("none", "assurance", "assurance expanded"))
 
-xlab <- "Age on Election Day"
+xlab <- "Years Since Release"
 plot_pd(pd_int_registered, facet_var = "labels", xlab = xlab, ylab = "Predicted Probability of Registration")
 ggsave("figures/pd_int_registered.png", width = 10, height = 5)
 plot_pd(pd_int_vote, facet_var = "labels", xlab = xlab, ylab = "Predicted Probability of Voting")
