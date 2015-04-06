@@ -123,9 +123,21 @@ Figure \ref{fig:imp} displays the permutation importance for the variables in th
 
 [^marginal]: This measure is not truly marginal since the importance of a variable within a particular tree is conditional on all previous splits in the tree. It is possible to conduct a conditional permutation test which permutes $\mathbf{x}_j$ with variables related to $\mathbf{x}_j$ "held constant," reducing the possibility that a variable is deemed important when it is actually spurious [@strobl2008conditional]. However, this procedure is prohibitively costly in terms of computational resources.
 
-### Parial Dependence
+### Partial Dependence
 
-Although the rough importance of a variable can often be very insightful, most scholars are intersted in *how* the variable is related to the outcome. Partial dependence is a simple method, again based on predictions from the forest, to visualize the partial relationship between the outcome and the predictors [@hastie2009elements]. The basic way it works is the following: for each value of the variable of interest, a new data set is created, where all observations are assigned the same value of the variable of interest. Then this data set is dropped down the forest, and a prediction for each observation is obtained. By averaging over these predictions, an average prediction, for a synthetic data set where the variable of interest is fixed to a particular value, and all other predictors are left unchanged is obtained. This is similar in spirit to integrating over the other parameters, however since we have no explicit probability model, we use this empirical procedure. Repeating this for all values of the variable of interst gives the relationship between said variable and the outcome over its range. In more detail, the partial dependence algorithm works as follows:
+Although the rough importance of a variable can often be very insightful, most scholars are intersted in how the variable is related to the outcome. Partial dependence is a simple method, again based on predictions from the forest, to visualize the partial relationship between the outcome and the predictors [p. 369, @hastie2009elements]. The function $f$ may depend on all of $\mathbf{X}$, but we are only able to visualize lower dimensional representations, say $\mathbf{X}_S$, where $S$ indexes columns, and $\bar{S}$ is the complement of $S$, and the length of $S$ is less than the dimension of $\mathbf{X}$. Then we may wish to see how our estimated function $\hat{f}$ depends on $\mathbf{X}_S$, and one way to do this is to compute the partial dependence:
+
+$$f_S(\mathbf{X}_S) = \mathbb{E}_{\mathbf{X}_{\bar{S}}} f(\mathbf{X}_{S}, \mathbf{X}_{\bar{S}})$$, 
+
+which can be estimated by:
+
+$$\hat{f}_S(\mathbf{X}_S) = \frac{1}{N} \sum_{i = 1}^N \hat{f}(\mathbf{X}_S, X_{i, \bar{S}})$$,
+
+where $N$ is the number of observations. Note that this is different from the marginal dependence, which would entail fixing, rather than averaging over, $\mathbf{X}_{\bar{S}}$. Marginal dependence, which is the conditional expectation of $fS$ given $\mathbf{X}_{\bar{S}}$, only matches the partial dependence if $\mathbf{X}_S$ is independent of $\mathbf{X}_{\bar{S}}$, and, additionally, that if $\mathbf{X}_{\bar{S}}$ is more than one dimension, its relationship with $\mathbf{y}$ must be additive as well.
+
+INSERT GRAPH COMPARING METHODS HERE
+
+The basic way partial dependence works is the following: for each value of the variable of interest, a new data set is created, where all observations are assigned the same value of the variable of interest. Then this data set is dropped down the forest, and a prediction for each observation is obtained. By averaging over these predictions, an average prediction, for a synthetic data set where the variable of interest is fixed to a particular value, and all other predictors are left unchanged is obtained. This is similar in spirit to integrating over the parameters corresponding to $\mathbf{X}_{\bar{S}}$, however since we have no explicit probability model, we use this empirical procedure. Repeating this for all values of the variable of interst gives the relationship between said variable and the outcome over its range. In more detail, the partial dependence algorithm works as follows:
 
  1. Let $\mathbf{x}_j$ be the predictor of interest, $\mathbf{X}_{-j}$ be the other predictors, $\mathbf{y}$ be the outcome, and $\hat{f}(\mathbf{X})$ the fitted forest.
  2. For $\mathbf{x}_j$ sort the unique values $\mathcal{V} = \{\mathbf{x}_j\}_{i \in \{1, \ldots, n\}}$ resulting in $\mathcal{V}^*$, where $|\mathcal{V}^*|=K$. Create $K$ new matrices $\mathbf{X}^{(k)} = (\mathbf{x}_j = \mathcal{V}^*_k, \mathbf{X}_{-j}), \: \forall \, k = (1, \ldots, K)$.
@@ -146,7 +158,7 @@ The interpretation of partial dependence: the average predicted value for a part
 
 
 
-### Interaction detection
+### Interaction Detection
 
 Partial dependence can also be used to visualize any joint relationships (i.e. interactions) the algorithm may have found. To do this create a dataset for each of the possible combinations of unique values of the explanatory variables of interest, predict the outcome in each of these observations, and then find the mean or modal prediction for each of these unique value combinations. For computational reasons we do not always use every unique value when an explanatory variable takes on more an arbitrary number of unique values. In this paper we use a random sample of 24 unique values that $\mathbf{x}_j$ takes on.[^extrapolation] This logic can be generalized to joint relationships of an arbitrary dimension, but we limit ourselves here to pairwise partial dependence. However, the partial dependence itself is difficult to interpret and is almost exclusively useful when visualized. Therefore, in order to detect interactions of the first order, the partial dependence of all variable pairs has to be calculated and visually inspected. Depending on the number of predictor variables this procedure might be infeasible. Furthermore, the dependence on visualization, makes it difficult or impossible to detect interactions of a higher order.
 
