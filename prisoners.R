@@ -209,7 +209,7 @@ p2 <- plot_prox(pca_registered, alpha = .95,
                 shape_label = "Voted in 2008",
                 size = df$ageonelecday[idx],
                 size_label = "Age on Election Day")
-png("figures/prox_registered.png", width = 10, height = 15, units = "in", res = 300)
+png("figures/prox_registered.png", width = 12, height = 15, units = "in", res = 300)
 grid.arrange(p1, p2, ncol = 1)
 dev.off()
 
@@ -228,7 +228,7 @@ p2 <- plot_prox(pca_vote, alpha = .95,
                 shape_label = "Voted in 2008",
                 size = df$ageonelecday[idx],
                 size_label = "Age on Election Day")
-png("figures/prox_vote.png", width = 10, height = 15, units = "in", res = 300)
+png("figures/prox_vote.png", width = 12, height = 15, units = "in", res = 300)
 grid.arrange(p1, p2, ncol = 1)
 dev.off()
 
@@ -247,7 +247,7 @@ p2 <- plot_prox(pca_cond_vote, alpha = .5,
                 shape_label = "Voted in 2008",
                 size = df$ageonelecday[df$registered == "registered"],
                 size_label = "Age on Election Day")
-png("figures/prox_cond_vote.png", width = 10, height = 15, units = "in", res = 300)
+png("figures/prox_cond_vote.png", width = 12, height = 15, units = "in", res = 300)
 grid.arrange(p1, p2, ncol = 1)
 dev.off()
 
