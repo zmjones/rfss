@@ -273,5 +273,3 @@ ggplot(plt, aes(ageonelecday, value, colour = method)) +
     geom_point() + geom_line() + theme_bw() +
         labs(x = "Age on Election Day", y = "Predicted Value")
 ggsave("figures/pd_vesus_mg.png", width = 10, height = 5)
-
-
