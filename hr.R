@@ -8,13 +8,10 @@ library(countrycode)
 library(doParallel)
 library(dplyr)
 
-cl <- makeCluster(8, "FORK")
-registerDoParallel(cl)
+registerDoParallel(makeCluster(8))
 
 df <- read.csv("data/eeesr.csv")
-
-## plt <- df %>% group_by(year) %>% summarise(mean = mean(latent))
-## ggplot(plt, aes(year,  mean)) + geom_point() + geom_line()
+df <- df %>% filter(year == 1999)
 
 df <- df %>% select(-one_of("latent_lag", "physint_lag", "amnesty_lag", "year",
                             "physint", "parcomp", "disap", "kill", "polpris", "tort", "amnesty",
@@ -22,16 +19,12 @@ df <- df %>% select(-one_of("latent_lag", "physint_lag", "amnesty_lag", "year",
                             "hro_shaming_lag", "avmdia_lag", "ainr_lag", "aibr_lag", "polity2",
                             "cwar", "wbimfstruct", "lagus", "lagun", "iwar"))
 
-df <- df %>% mutate(gdppc = log(gdppc), pop = log(pop)) %>%
-    group_by(ccode) %>%
-        summarise_each(funs(mean(., na.rm = TRUE))) %>%
-            mutate_each(funs(ifelse(is.nan(.), NA, .)))
-df <- as.data.frame(df)
+df <- df %>% mutate(gdppc = log(gdppc), pop = log(pop)) %>% as.data.frame(.)
 ivar <- colnames(df)[!(colnames(df) %in% c("ccode", "latent"))]
+
 form <- as.formula(paste0("latent ~ ", paste0(ivar, collapse = " + ")))
-ntree <- 5000
-mtry <- 5
-fit <- cforest(form, df, controls = cforest_unbiased(mtry = mtry, ntree = ntree))
+control <- cforest_unbiased(mtry = 5, ntree = 1000)
+fit <- cforest(form, df, controls = control)
 
 pred <- var_est(fit, df)
 cl <- qnorm(.025, lower.tail = FALSE)
@@ -50,7 +43,7 @@ xtable(out, digits = 3)
 
 plot_pred(pred$latent, pred$truth, pred$variance,
           outlier_idx = which(pred$name %in% row.names(out)), labs = pred$name,
-          xlab = "Latent Mean by Country (over time)", ylab = "Predicted Country Mean",
+          xlab = "Latent Mean by Country (1999)", ylab = "Predicted Country Mean",
           title = "Mean Country Levels versus Predicted Country Levels") +
     annotate("text", 3.5, -1, label = perf)
 ggsave("figures/latent_pred.png", width = 10, height = 6)
@@ -73,8 +66,3 @@ pd$labels <- labels[match(pd$variable, imp$labels)]
 plot_pd(pd, facet_var = "labels", ylab = "Latent Respect for Physical Integrity Rights (Country Mean)",
         title = "Partial Dependence of Top Variables")
 ggsave("figures/latent_pd.png", width = 10, height = 8)
-
-prox <- extract_proximity(fit)
-plot_prox(prox, scale = TRUE, size = 2.5, labels = countrycode(df$ccode, "cown", "country.name"),
-          title = "Latent Country Similarity")
-ggsave("figures/latent_prox.png", width = 8, height = 8)
