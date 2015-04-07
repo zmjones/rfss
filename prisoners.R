@@ -233,19 +233,19 @@ grid.arrange(p1, p2, ncol = 1)
 dev.off()
 
 p1 <- plot_prox(pca_cond_vote, alpha = .5,
-                color = df$treatment_ordered[df$registered == 1],
+                color = df$treatment_ordered[df$registered == "registered"],
                 color_label = "Treatment",
-                shape = df$v08[df$registered == 1],
+                shape = df$v08[df$registered == "registered"],
                 shape_label = "Voted in 2008",
-                size = df$ageonelecday[df$registered == 1],
+                size = df$ageonelecday[df$registered == "registered"],
                 size_label = "Age on Election Day",
                 title = "Latent Similarity of Individuals on Predictors of Voting Given Registration")
 p2 <- plot_prox(pca_cond_vote, alpha = .5,
-                color = df$vote[df$registered == 1], c
+                color = df$vote[df$registered == "registered"],
                 olor_label = "Voted in 2012",
-                shape = df$v08[df$registered == 1],
+                shape = df$v08[df$registered == "registered"],
                 shape_label = "Voted in 2008",
-                size = df$ageonelecday[df$registered == 1],
+                size = df$ageonelecday[df$registered == "registered"],
                 size_label = "Age on Election Day")
 png("figures/prox_cond_vote.png", width = 10, height = 15, units = "in", res = 300)
 grid.arrange(p1, p2, ncol = 1)
