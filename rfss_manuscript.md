@@ -143,21 +143,41 @@ Figure \ref{fig:imp} displays the permutation importance for the two data exampl
 
 Figure \ref{fig:imp_cond_vote} displays the permutation importance for the prisoners example. The scale of this measure is the increase in misclassification error as described in Equation \ref{eq:imp}. The predictive accuracy of the model is generally very bad, because the variables available do not contain much information on the decision to vote. The only variable that significantly contributes to the predictive accuracy of the model is if the subject voted in the previous election. Permuting this variable decreases the accuracy of the classification in voters and non-voters by about 2\%. The other variables actually *decrease* our ability to predict the outcome. [SOME EXPLANATION ON THIS FACT WHAT DOES IT MEAN? IS IT JUST RANDOM?]
 
-This short exposition showed that permutation importance can be a useful tool to get a rough assessment of the predictive importance of the variables in the model. However, the usefulness of this measure of variable importance depends on the goals of the researcher. 
+This short exposition showed that permutation importance can be a useful tool to get a rough assessment of the predictive importance of the variables in the model. However, the usefulness of this measure of variable importance depends on the goals of the researcher. Since it is a measure of predictive importance it does not tell us anything on the causal importance of a variable. In order to find such effects, causal identification has to be provided through the research design. However, discovery and testing of such effects is not the goal of EDA. For such an analysis, permutation importance is a useful tool to get a rough assessment of potentially theoretically interesting variables. Especially in cases where many predictors are available, but little theory on important variables, this importance measure provides the possibility to easily screen for important variables. 
 
+[A BIT MORE ON WHY THIS IS BETTER THAN E.G. SIGNIFICANCE TESTS OR CORRELATIONS]
 
-- says nothing on causal importance
-- if interest is just in the existence of an effect, the big predictors might overshadow such effects and other measures might be more appropriate (but EDA is often in an early stage, and we don't talk about causal studies here.)
-- good for rough assessment of variables
-- first look at data
-- find relevant stuff if there are a lot of variables
-- epistemological question of importance of prediction for importance of variables
-measure at the end of this 
+[SHOULD WE ADD SOMETHING ON THE EPISTEMOLOGICAL QUESTIONS RELATED TO PREDICTIVE PERFORMANCE AS MEASURE OF THEORETICAL IMPORTANCE?] 
 
 
 ### Partial Dependence
 
-Although the rough importance of a variable can often be very insightful, most scholars are interested in how the variable is related to the outcome. Partial dependence is a simple method, again based on predictions from the forest, to visualize the partial relationship between the outcome and the predictors [p. 369, @hastie2009elements]. The function $f$ may depend on all of $\mathbf{X}$, but we are only able to visualize lower dimensional representations, say $\mathbf{X}_S$, where $S$ indexes columns, and $\bar{S}$ is the complement of $S$, and the length of $S$ is less than the dimension of $\mathbf{X}$. Then we may wish to see how our estimated function $\hat{f}$ depends on $\mathbf{X}_S$, and one way to do this is to compute the partial dependence:
+Although the rough importance of a variable can often be very insightful, most scholars are interested in how the variable is related to the outcome. Partial dependence is a simple method, again based on predictions from the forest, to visualize the partial relationship between the outcome and the predictors [p. 369, @hastie2009elements]. Partial dependence provides the possibility to visualize the relationship between $\mathbf{y}$ and one or more predictors $\mathbf{x_j}$ as detected by the Random Forest. The basic intuition is to obtain a prediction from the Random Forest for each value of $\mathbf{x_j}$ (or of each value combination if there are multiple variables of interest). Plotting these predictions against the unique values of $\mathbf{x_j}$ then displays how $\mathbf{y}$ is related to $\mathbf{x_j}$ according to the model. Since the Random Forest can approximate almost arbitrary functional relationships between $\mathbf{x_j}$ and $\mathbf{y}$ -- as shown in Figure \ref{fig:rf_approx} -- the model is able to detect non-linear relationships without the need to pre-specify them. This allows to detect potentially interesting non-linearities in settings where little a priori theoretical knowledge allows for pre-specification of specific forms. This is one of the main strengths of Random Forests for exploratory analyses.  
+
+The basic way partial dependence works is the following: for each value of the variable of interest, a new data set is created, where all observations are assigned the same value of the variable of interest. Then this data set is dropped down the forest, and a prediction for each observation is obtained. By averaging over these predictions, an average prediction, for a synthetic data set where the variable of interest is fixed to a particular value, and all other predictors are left unchanged is obtained. This is similar in spirit to integrating over the parameters corresponding to $\mathbf{X}_{\bar{S}}$, however since we have no explicit probability model, we use this empirical procedure. Repeating this for all values of the variable of interest gives the relationship between said variable and the outcome over its range. In more detail, the partial dependence algorithm works as follows:
+
+ 1. Let $\mathbf{x}_j$ be the predictor of interest, $\mathbf{X}_{-j}$ be the other predictors, $\mathbf{y}$ be the outcome, and $\hat{f}(\mathbf{X})$ the fitted forest.
+ 2. For $\mathbf{x}_j$ sort the unique values $\mathcal{V} = \{\mathbf{x}_j\}_{i \in \{1, \ldots, n\}}$ resulting in $\mathcal{V}^*$, where $|\mathcal{V}^*|=K$. Create $K$ new matrices $\mathbf{X}^{(k)} = (\mathbf{x}_j = \mathcal{V}^*_k, \mathbf{X}_{-j}), \: \forall \, k = (1, \ldots, K)$.
+ 3. Drop each of the $K$ new datasets, $\mathbf{X}^{(k)}$ down the fitted forest 
+ resulting in a predicted value for each observation in all $k$ datasets: $\hat{\mathbf{y}}^{(k)} = \hat{f}(\mathbf{X}^{(k)}), \: \forall \, k = (1, \ldots, K)$.
+ 4. Average the predictions in each of the $K$ datasets, $\hat{y}_k^* = \frac{1}{n}\sum_{i=1}^N \hat{y}_i^{(k)}, \: \forall \, k = (1, \ldots, K)$.
+ 5. Visualize the relationship by plotting $\mathbf{V}^*$ against $\hat{\mathbf{y}}^*$.
+
+The average predictions obtained from this method are more than just marginal relationships [IS THIS CORRECT, CONNECT TO THE COMPARISON SECTION] between the outcome and the predictor. Since each of the predictions are made using all the information in all the other predictors of an observation, the prediction obtained from the partial dependence algorithm also contains this information. This means that the relationship displayed in a partial dependence plot contains all the relation between $x_j$ and $y$ including the averaged effects of all interactions of $x_j$ with all the other predictors $\mathbf{X}_{-j}$, which is why this method gives the partial dependence rather than the marginal dependence. [CHECK THIS WHOLE SECTION]
+
+\input{figures/latex_subfloats/partial_dependence.tex}
+
+Figure \ref{fig:pd} diplays the partial dependence for our example data sets. Figure \ref{fig:latent_pd} displays the relationships of selected predictors with the latent outcome variable. Figure  \ref{fig:pd_cond_vote} shows the results for the prisoners example. Note that the partial dependence plots in \ref{fig:latent_pd} additionally contain error bars for the predictions, whereas there are no such bars in the plots for the prisoners example. The treatment of sampling uncertainty in predictions of machine learning algorithms is subject to current research in the relevant literature [CITATIONS]. @wagner2014confidence developed a method -- the bias corrected infinitesimal jackknife (BIJ) to produce variance estimates for predictions from Random Forests. However, this method works only for continuous outcomes and not for classification. We implemented the BIJ in our software package to produce uncertainty intervals for partial dependence plots. Since this is a topic of ongoing research, and there are other proposed approaches, we expect to extend our software to these approaches [see e.g. CITATION].
+
+The partial dependence is interpreted as the predicted value for a particular value of an explanatory variable averaged within the joint values of the other predictors. This is similar to the interpretation of outputs from other parametric, semi-parametric, or non-parametric regression methods. Our software provides a method to compute $k$-way partial dependence (i.e., interactions of arbitrary dimension or many two-way partial dependencies) for continuous, binary, categorical, censored, and multivariate outcome variables.
+
+
+[THIS HAS TO BE INTEGRATED SOMEHOW BETTER]
+
+#### Comparison to other Methods
+
+
+The function $f$ may depend on all of $\mathbf{X}$, but we are only able to visualize lower dimensional representations, say $\mathbf{X}_S$, where $S$ indexes columns, and $\bar{S}$ is the complement of $S$, and the length of $S$ is less than the dimension of $\mathbf{X}$. Then we may wish to see how our estimated function $\hat{f}$ depends on $\mathbf{X}_S$, and one way to do this is to compute the partial dependence:
 
 $$f_S(\mathbf{X}_S) = \mathbb{E}_{\mathbf{X}_{\bar{S}}} f(\mathbf{X}_{S}, \mathbf{X}_{\bar{S}})$$, 
 
@@ -169,26 +189,9 @@ where $N$ is the number of observations. Note that this is different from the ma
 
 INSERT GRAPH COMPARING METHODS HERE
 
-The basic way partial dependence works is the following: for each value of the variable of interest, a new data set is created, where all observations are assigned the same value of the variable of interest. Then this data set is dropped down the forest, and a prediction for each observation is obtained. By averaging over these predictions, an average prediction, for a synthetic data set where the variable of interest is fixed to a particular value, and all other predictors are left unchanged is obtained. This is similar in spirit to integrating over the parameters corresponding to $\mathbf{X}_{\bar{S}}$, however since we have no explicit probability model, we use this empirical procedure. Repeating this for all values of the variable of interst gives the relationship between said variable and the outcome over its range. In more detail, the partial dependence algorithm works as follows:
 
- 1. Let $\mathbf{x}_j$ be the predictor of interest, $\mathbf{X}_{-j}$ be the other predictors, $\mathbf{y}$ be the outcome, and $\hat{f}(\mathbf{X})$ the fitted forest.
- 2. For $\mathbf{x}_j$ sort the unique values $\mathcal{V} = \{\mathbf{x}_j\}_{i \in \{1, \ldots, n\}}$ resulting in $\mathcal{V}^*$, where $|\mathcal{V}^*|=K$. Create $K$ new matrices $\mathbf{X}^{(k)} = (\mathbf{x}_j = \mathcal{V}^*_k, \mathbf{X}_{-j}), \: \forall \, k = (1, \ldots, K)$.
- 3. Drop each of the $K$ new datasets, $\mathbf{X}^{(k)}$ down the fitted forest 
- resulting in a predicted value for each observation in all $k$ datasets: $\hat{\mathbf{y}}^{(k)} = \hat{f}(\mathbf{X}^{(k)}), \: \forall \, k = (1, \ldots, K)$.
- 4. Average the predictions in each of the $K$ datasets, $\hat{y}_k^* = \frac{1}{n}\sum_{i=1}^N \hat{y}_i^{(k)}, \: \forall \, k = (1, \ldots, K)$.
- 5. Visualize the relationship by plotting $\mathbf{V}^*$ against $\hat{\mathbf{y}}^*$.
+\clearpage
 
-The average predictions obtained from this method are more than just marginal relationships between the outcome and the predictor. Since each of the predictions are made using all the information in all the other predictors of an observation, the prediction obtained from the partial dependence algorithm also contains this information. This means that the relationship displayed in a partial dependence plot contains all the relation between $x_j$ and $y$ including the averaged effects of all interactions of $x_j$ with all the other predictors $\mathbf{X}_{-j}$, which is why this method gives the partial dependence rather than the marginal dependence.
-
-\input{figures/latex_subfloats/partial_dependence.tex}
-
-\ref{fig:pd} \ref{fig:latent_pd} \ref{fig:pd_cond_vote}
-
-Figure \ref{fig:registered_pd} shows partial dependence applied to a Random Forest fit to the prisoners voting experiment. The partial dependence plot reveals that ... To reiterate, the plot displays the values of the explanatory variable on the x-axis, against the average prediction from the forest, obtained from the procedure described above.
-
-We use a (Monte-Carlo) bias-corrected infinitesimal jackknife to obtain variance estimates for the partial dependence predictions [@wager2014confidence; @efron1981nonparametric; @efron2014estimation]. The variance is obtained by applying an infinitesimal jackknife estimator to obtain variance estimates, based on the bootstrap samples that are used to fit the forest [@efron2014estimation]. Since this estimator contains additional variation due to the fact that every forest consists of only a finite number of trees, this estimator corrects for this Monte-Carlo induced variation. The method was developed to obtain estimates of the variance in the prediction of a Random Forest based on the bootstrap samples used for each tree. Since the partial dependence is an averaged prediction from the Random Forest, we use this method to obtain estimates of the sampling variability in the average predictions for each value of the predictor variable [@sexton2009standard]. Because this variance estimator produces a confidence interval for each prediction, we average over these intervals to obtain a confidence interval for the average prediction.
-
-The interpretation of partial dependence: the average predicted value for a particular value of an explanatory variable averaged within the joint values of the other predictors, is intuitive, and similar to the interpretation given other outputs from other parametric, semi-parametric, or non-parametric regression methods. Our software provides a method to compute $k$-way partial dependence (i.e., interactions of arbitrary dimension or many two-way partial dependencies) for continuous, binary, categorical, censored, and multivariate outcome variables.
 
 ### Interaction Detection
 
