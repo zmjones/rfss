@@ -25,9 +25,13 @@ In this paper, we provide an accessible introduction to the algorithm and the me
 [^exceptions]: Although there have been some exceptions @grimmer2015we, @hill2014empirical.
 [^edarf]: The package is currently available in its development version at <https://github.com/zmjones/edarf>. The packages supported are [party](http://cran.r-project.org/web/packages/party/index.html) (`cforest`), [randomForest](http://cran.r-project.org/web/packages/randomForest/index.html), and [randomForestSRC](http://cran.r-project.org/web/packages/randomForestSRC/index.html) (`rfsrc`).
 
-## Classification and Regression Trees
+## Random Forests
 
-Classification and regression trees (CART) are a regression method that relies on repeated partitioning of the data to estimate the conditional distribution of a response given a set of predictors. Let the outcome of interest be a vector of observations $\mathbf{y} = (y_1,\ldots,y_n)^T$ and the set of explanatory variables or predictors a matrix $\mathbf{X} = (\mathbf{x}_1,\ldots,\mathbf{x}_p)$, where $\mathbf{x}_j = (x_{1j},\ldots,x_{nj})^T$ for $j \in \{1,\ldots,p\}$. The goal of the algorithm is, to partition $\mathbf{y}$ conditional on the values of $\mathbf{X}$ in such a way that the resulting subgroups of $\mathbf{y}$ are as homogeneous as possible.
+The Random Forest algorithm as first proposed by @breiman2001random is a so called ensemble method. This means the model consists of many smaller models, but predictions and other quantities of interest are obtained by combining the outputs of all the smaller models. There are many ensemble methods that consist of different sub models. Random Forests consist of many classification and regression trees (CART). The key to understanding how the Random Forest works, is to understand CART. Therefore, in the next sections we first give a more detailed introduction to CART and then continue with the combination of the trees to an ensemble.
+
+### Classification and Regression Trees
+
+CART are a regression method that relies on repeated partitioning of the data to estimate the conditional distribution of a response given a set of predictors. Let the outcome of interest be a vector of observations $\mathbf{y} = (y_1,\ldots,y_n)^T$ and the set of explanatory variables or predictors a matrix $\mathbf{X} = (\mathbf{x}_1,\ldots,\mathbf{x}_p)$, where $\mathbf{x}_j = (x_{1j},\ldots,x_{nj})^T$ for $j \in \{1,\ldots,p\}$. The goal of the algorithm is, to partition $\mathbf{y}$ conditional on the values of $\mathbf{X}$ in such a way that the resulting subgroups of $\mathbf{y}$ are as homogeneous as possible.
 
 The algorithm works by considering every unique value in each predictor as a candidate for a binary split, and calculating the homogeneity of the subgroups of the outcome variable that would result by grouping observations that fall on either side of this value. Consider the (artificial) example in Figure \ref{fig:cart_visu}. $\mathbf{y}$ is the vote choice of $n = 40$ subjects (18 republicans and 22 democrats), $\mathbf{x}_1$ is the ideology of the voter and $\mathbf{x}_2$ is the age. 
 
@@ -49,19 +53,11 @@ Where $n^{(m_l)}$ and $n^{(m_r)}$ are the number of cases that fall to the right
 
 In the example above we made the intuitive choice to use the number of cases incorrectly classified when assigning the mode as the fitted value, divided by the number of cases in the node, as the loss function. This proportion can also be interpreted as the impurity of the data in the node, to return to our goal stated at the beginning: to partition the data in a way that produces homogeneous subgroups. Therefore it is intuitive to use the amount of impurity as a measure of loss. This is how the algorithm can be used for outcomes with more than two unique values (i.e. for nominal or ordinal outcomes with more than two categories, or continuous outcomes). By choosing a loss function that is appropriate to measure the impurity of a variable at a certain level of measurement, the algorithm can be extended to those outcomes.
 
-For categorical outcomes, denote the set of unique categories of $\mathbf{y}^{(m)}$ as $\mathcal{D}^{(m)} = \{y^{(m)}_i\}_{i\in\{1,\ldots,n^{(m)}\}}$. In order to asses the impurity of the node we first calculate the proportion of cases pertaining to each class $d \in \mathcal{D}^{(m)}$ and denote it as $p^{(m)}(d)$. Denote further the class that occurs most frequent as:
-
-\begin{equation}
-  \label{eq:maxclass}
-  \def\argmax{\mathop{\rm argmax}}
-  \hat{y}^{(m)} = \argmax_{d} p^{(m)}(d)
-\end{equation}
-
-Then the loss function can be applied to obtain the impurity of the node. The misclassification loss is obtained from:
+For categorical outcomes, denote the set of unique categories of $\mathbf{y}^{(m)}$ as $\mathcal{D}^{(m)} = \{y^{(m)}_i\}_{i\in\{1,\ldots,n^{(m)}\}}$. In order to asses the impurity of the node we first calculate the proportion of cases pertaining to each class $d \in \mathcal{D}^{(m)}$ and denote it as $p^{(m)}(d)$. Denote further the class that occurs most frequent as $\hat{y}^{(m)}$. Then the loss function can be applied to obtain the impurity of the node. The misclassification loss is obtained from:
 
 \begin{equation}
   \label{eq:misclass}
-  L_d^{(m)}(\mathbf{y}^{(m)}) = \frac{1}{n^{(m)}} \sum_{i=1}^{n^{(m)}} \mathbb{I}(y^{(m)}_i \neq \hat{y}^{(m)}) = 1 - p^{(m)}(\hat{y}^{(m)})
+  L_{mc}(\mathbf{y}^{(m)}) = \frac{1}{n^{(m)}} \sum_{i=1}^{n^{(m)}} \mathbb{I}(y^{(m)}_i \neq \hat{y}^{(m)}) = 1 - p^{(m)}(\hat{y}^{(m)})
 \end{equation}
 
 Where $\mathbb{I}(\cdot)$ is the indicator function that is equal to one when its argument is true. This formalizes the intuition used above: the impurity of the node is the proportion of cases that would be misclassified under "majority rule."[^asym_loss]
@@ -91,7 +87,7 @@ As previously mentioned CART has two main problems: fitted values have high vari
 
 [^global]: Though see @grubingerevtree for an example of a stochastic search algorithm for this problem.
 
-## Random Forests
+### Combining the Trees to a Forest
 
 @breiman1996bagging proposed bootstrap aggregating, commonly called "bagging," to decrease the variance of fitted values from CART. This innovation also can be used to reduce the risk of overfitting. A set of bootstrap samples are drawn from the data: samples drawn with replacement and of the same size as the original data. A CART is fit to each of these samples. Each bootstrap sample excludes some portion of the data, which is commonly referred to as the out-of-bag (OOB) data. Each tree makes predictions for the OOB data by dropping it down the tree that was grown without that data. Thus each observation will have a prediction made by each tree where it was not in the bootstrap sample drawn for that tree. The predicted values for each observation are combined to produce an ensemble estimate which has a lower variance than would a prediction made by a single CART grown on the original data. For continuous outcomes the predictions made by each tree are averaged. For discrete outcomes the majority class is used. Relying on the OOB data for predictions also eliminates the risk of overfitting since the each tree's prediction is made with data not used for fitting.
 
@@ -223,8 +219,14 @@ Alternatively, a random effects approach could be used: the outcome of interest 
 
 ## Conclusion
 
-In situations where relevant theory says little about the functional form of the relationship of interest, the magnitude and degree of nonlinearity and interaction is unknown, the number of possibly relevant predictors is large, or when prediction is important, Random Forests may be quite useful. We believe that this situation is common, especially in comparative politics and international relations.
+With the rise of big data and the increasing prominence of computationally intensive methods of analysis, machine learning algorithms have moved more into the focus of attention of social science scholars. A very prominent algorithm in this group is the Random Forest. Although, it is very common in other disciplines, it has not been widely used in political science. We suspect that this is in part due to the believe that machine learning models, that are primarily designed to achieve good predictive performance, are black boxes that are not helpful for theory-seeking substantive research [@breiman2001statistical; @clark2015big]. 
 
-We have provided a technical introduction to CART and Random Forests, with the goal of providing researchers with enough background knowledge to use these methods in an informed manner, as well as software to reduce the technical burden of their use. Random Forests are but one member of a broad class of supervised machine learning methods that could be useful to political scientists. We hope that in the future these methods and the issues that they are designed to solve are incorporated into political science. Particularly, we see the development of machine learning methods for dependent data as a fruitful area for future research.
+
+
+In this paper we introduced Random Forest in detail and demonstrated its potential for substantive research in exploratory settings. Through various methods substantive  In situations where relevant theory says little about the functional form of the relationship of interest, the magnitude and degree of nonlinearity and interaction is unknown, the number of possibly relevant predictors is large, or when prediction is important, Random Forests may be a very useful tool for applied political science researchers.
+
+
+
+ as well as software to reduce the technical burden of their use. Random Forests are but one member of a broad class of supervised machine learning methods that could be useful to political scientists. We hope that in the future these methods and the issues that they are designed to solve are incorporated into political science. Particularly, we see the development of machine learning methods for dependent data as a fruitful area for future research.
 
 # References
