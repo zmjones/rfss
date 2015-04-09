@@ -90,7 +90,7 @@ plot_prox(pca_cond_vote, alpha = .5,
 ggsave("figures/prox_cond_vote_top.png", width = 12, height = 7)
 plot_prox(pca_cond_vote, alpha = .5,
           color = df$vote[df$registered == "registered"],
-          olor_label = "Voted in 2012",
+          color_label = "Voted in 2012",
           shape = df$v08[df$registered == "registered"],
           shape_label = "Voted in 2008",
           size = df$ageonelecday[df$registered == "registered"],

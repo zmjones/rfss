@@ -17,7 +17,7 @@ p <- ggplot(df, aes(x, y))
 p <- p + geom_point(alpha = .5)
 p <- p + geom_line(aes(x, tree), colour = "blue")
 p <- p + theme_bw()
-ggsave("figures/cart_approximation.png", p, width = 10, height = 5)
+ggsave("figures/cart_approximation.png", p, width = 10, height = 8)
 
 fit_forest <- cforest(y ~ x, df, control = cforest_unbiased(mtry = 1))
 df <- sapply(fit_forest@ensemble, function(x)
@@ -34,6 +34,4 @@ p <- p + geom_point()
 p <- p + geom_line(aes(x, forest), colour = "red")
 p <- p + geom_line(aes(x, value), alpha = .15, colour = "blue")
 p <- p + theme_bw()
-ggsave("figures/forest_approximation.png", p, width = 10, height = 5)
-
-
+ggsave("figures/forest_approximation.png", p, width = 10, height = 8)
