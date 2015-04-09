@@ -64,3 +64,11 @@ pd <- partial_dependence(fit, var = top, interaction = FALSE, ci = TRUE, paralle
 pd$labels <- labels[match(pd$variable, imp$labels)]
 plot_pd(pd, facet_var = "labels", ylab = "Latent Respect for Physical Integrity Rights (Country Mean)")
 ggsave("figures/latent_pd.png", width = 10, height = 8)
+
+prox <- extract_proximity(fit)
+pca <- prcomp(prox)
+
+df$injud <- factor(df$injud, labels = c("not independent", "somewhat independent", "mostly independent"))
+plot_prox(pca, labels = countrycode(df$ccode, "cown", "country.name"),
+          color = df$injud, color_label = "Judicial Independence")
+ggsave("figures/latent_prox.png", width = 10, height = 7)
