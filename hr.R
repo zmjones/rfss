@@ -43,8 +43,7 @@ xtable(out, digits = 3)
 
 plot_pred(pred$latent, pred$truth, pred$variance,
           outlier_idx = which(pred$name %in% row.names(out)), labs = pred$name,
-          xlab = "Latent Mean by Country (1999)", ylab = "Predicted Country Mean",
-          title = "Mean Country Levels versus Predicted Country Levels") +
+          xlab = "Latent Mean by Country (1999)", ylab = "Predicted Country Mean") +
     annotate("text", 3.5, -1, label = perf)
 ggsave("figures/latent_pred.png", width = 10, height = 6)
 
@@ -63,6 +62,5 @@ ggsave("figures/latent_imp.png", width = 10, height = 6)
 top <- ivar[ivar %in% imp$labels[order(imp$value, decreasing = TRUE)][1:12]]
 pd <- partial_dependence(fit, var = top, interaction = FALSE, ci = TRUE, parallel = TRUE)
 pd$labels <- labels[match(pd$variable, imp$labels)]
-plot_pd(pd, facet_var = "labels", ylab = "Latent Respect for Physical Integrity Rights (Country Mean)",
-        title = "Partial Dependence of Top Variables")
+plot_pd(pd, facet_var = "labels", ylab = "Latent Respect for Physical Integrity Rights (Country Mean)")
 ggsave("figures/latent_pd.png", width = 10, height = 8)

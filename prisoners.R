@@ -41,8 +41,7 @@ imp_cond_vote <- variable_importance(fit_cond_vote)
 labels <- c("Ordinal Treatment", "Voted in 2008 Election", "Age on Election Day", 
             "Time Since Release (Years)", "Crime", "Days Served")
 ylab <- "Permutation Importance"
-plot_imp(imp_cond_vote, "descending", labels = labels, xlab = "", ylab = ylab,
-         title = "Permutation Importance of Predictors for Ex-Felon Voting Given Registration")
+plot_imp(imp_cond_vote, "descending", labels = labels, xlab = "", ylab = ylab, zero_line = TRUE)
 ggsave("figures/imp_cond_vote.png", width = 10, height = 6)
 
 ## compute and plot bivariate partial dependence
@@ -56,8 +55,7 @@ pd_cond_vote$vote <- as.numeric(as.character(pd_cond_vote$vote))
 attr(pd_cond_vote, "prob") <- FALSE
 pd_cond_vote$labels <- labels[match(pd_cond_vote$variable, imp_cond_vote$labels)]
 
-plot_pd(pd_cond_vote, facet_var = "labels",
-        title = "Partial Dependence of Predictors on the Probability of Voting Given Registration")
+plot_pd(pd_cond_vote, facet_var = "labels")
 ggsave("figures/pd_cond_vote.png", width = 10, height = 8)
 
 ## compute interactions with treatment
@@ -82,24 +80,22 @@ ggsave("figures/pd_int_cond_vote.png", width = 10, height = 5)
 prox_cond_vote <- extract_proximity(fit_cond_vote)
 pca_cond_vote <- prcomp(prox_cond_vote)
 
-p1 <- plot_prox(pca_cond_vote, alpha = .5,
-                color = df$treatment_ordered[df$registered == "registered"],
-                color_label = "Treatment",
-                shape = df$v08[df$registered == "registered"],
-                shape_label = "Voted in 2008",
-                size = df$ageonelecday[df$registered == "registered"],
-                size_label = "Age on Election Day",
-                title = "Latent Similarity of Individuals on Predictors of Voting Given Registration")
-p2 <- plot_prox(pca_cond_vote, alpha = .5,
-                color = df$vote[df$registered == "registered"],
-                olor_label = "Voted in 2012",
-                shape = df$v08[df$registered == "registered"],
-                shape_label = "Voted in 2008",
-                size = df$ageonelecday[df$registered == "registered"],
-                size_label = "Age on Election Day")
-png("figures/prox_cond_vote.png", width = 12, height = 15, units = "in", res = 300)
-grid.arrange(p1, p2, ncol = 1)
-dev.off()
+plot_prox(pca_cond_vote, alpha = .5,
+          color = df$treatment_ordered[df$registered == "registered"],
+          color_label = "Treatment",
+          shape = df$v08[df$registered == "registered"],
+          shape_label = "Voted in 2008",
+          size = df$ageonelecday[df$registered == "registered"],
+          size_label = "Age on Election Day") 
+ggsave("figures/prox_cond_vote_top.png", width = 12, height = 7)
+plot_prox(pca_cond_vote, alpha = .5,
+          color = df$vote[df$registered == "registered"],
+          olor_label = "Voted in 2012",
+          shape = df$v08[df$registered == "registered"],
+          shape_label = "Voted in 2008",
+          size = df$ageonelecday[df$registered == "registered"],
+          size_label = "Age on Election Day")
+ggsave("figures/prox_cond_vote_bottom.png", width = 12, height = 7)
 
 ## compare pd to mg to glm fit
 dfs <- df[df$registered == "registered", ]
