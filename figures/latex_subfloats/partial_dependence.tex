@@ -1,0 +1,18 @@
+\begin{figure}
+        \centering
+        \begin{subfigure}[b]{0.7\textwidth}
+                \includegraphics[width=\textwidth]{figures/latent_pd.png}
+                \caption{Partial dependence for predictors of latent respect for human rights. The confidence intervals are calculated using the bias corrected infinitesimal jackknife. }
+                \label{fig:latent_pd}
+        \end{subfigure}%
+        ~ %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc.
+          %(or a blank line to force the subfigure onto a new line)
+
+        \begin{subfigure}[b]{0.7\textwidth}
+                \includegraphics[width=\textwidth]{figures/pd_cond_vote.png}
+                \caption{Partial dependence for explanatory variables in the prisoners example.}
+                \label{fig:pd_cond_vote}
+        \end{subfigure}
+        \caption{Partial dependendence for human rights and prisoners examples.}
+        \label{fig:pd}
+\end{figure}
