@@ -197,6 +197,7 @@ This method is easier to implement, and detection of interaction in situations w
 [^vimp]: This fact can also be used to create a measure of variable importance; an alternative to the permutation importance measure described above.
 [^visu]: We are currently working on the implementation of a visualization tool for this method across packages. Currently maximal subtrees and minimal depth can only be obtained from the \texttt{randomForestSRC} package.
 
+
 ### Similarity and Clustering
 
 Random Forest can furthermore be used to to understand the similarity between observations in the predictor space, after the forest has been fit. Offering an easy tool for cluster analysis in exploratory settings. To obtain the similarity of observarions, a proximity matrix is calculated, which is an $n$ by $n$ matrix where each entry gives the proportion of times that observation $i$ is in the same terminal node as observation $j$ across all the terminal nodes in the different trees of the forest. Since observations that have similar $\mathbf{x}$ values 'travel' the same way on splits more often than values with dissimilar values, the co-occurence in terminal nodes is a suitable measure of similarity. 
