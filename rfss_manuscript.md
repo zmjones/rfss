@@ -10,6 +10,7 @@ The rise of *Big Data* has made machine learning algorithms more visible and rel
 
 \clearpage
 
+
 ## Introduction
 
 Technological development has made an abundance of new sources of data available to social scientists. These developments often referred to as *Big Data*, have triggered a debate in political science on how useful these new sources of data and the methods of analysis that come with them are for social scientific inquiry and how compatible they are with classic approaches in political science [@clark2015big]. An important component of these new developments is the prominence of machine learning algorithms that have been used for a long time in computer science and other disciplines, but get more and more visible for social science researchers. These methods, also referred to as data mining, statistical learning or algorithmic models, have initially been developed to maximize predictive performance, and they are most prominently employed for rather a-theoretical tasks. For this reason, they are often considered to be black boxes, that deliver good predictions, but are not very useful for more theory driven work interested in substantive insights [@breiman2001statistical]. 
