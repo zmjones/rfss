@@ -6,14 +6,12 @@ setup:
 
 rfss_manuscript.pdf: rfss_manuscript.md
 	pandoc -H options.sty $< -o $@ --bibliography=rfss.bib
-	cp $@ ~/Dropbox/zach_frido/
 
 rfss_manuscript.tex: rfss_manuscript.md
 	pandoc -H options.sty $< -o $@ --bibliography=rfss.bib -s
 
 rfss_slides.pdf: rfss_slides.md
 	pandoc -t beamer $< -o $@
-	cp $@ ~/Dropbox/zach_frido/
 
 R/partitioning_example.Rout: R/partitioning_example.R
 	R --no-save --no-restore < $< > $@
