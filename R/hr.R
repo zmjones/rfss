@@ -7,6 +7,7 @@ library(xtable)
 library(countrycode)
 library(doParallel)
 library(dplyr)
+library(stringr)
 
 registerDoParallel(makeCluster(8))
 

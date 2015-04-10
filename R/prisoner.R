@@ -7,6 +7,7 @@ library(gridExtra)
 library(dplyr)
 library(tidyr)
 library(doParallel)
+library(stringr)
 
 registerDoParallel(makeCluster(8))
 
