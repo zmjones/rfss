@@ -1,5 +1,9 @@
 set.seed(1987)
 
+args <- commandArgs(TRUE)
+cores <- as.integer(args[1])
+if (is.na(cores)) cores <- 1
+
 library(party)
 library(ggplot2)
 library(edarf)
@@ -7,10 +11,14 @@ library(xtable)
 library(countrycode)
 library(doParallel)
 library(dplyr)
+library(stringr)
 
-registerDoParallel(makeCluster(8))
+registerDoParallel(makeCluster(cores))
 
-df <- read.csv("data/eeesr.csv")
+path <- unlist(str_split(getwd(), "/"))
+dir_prefix <- ifelse(path[length(path)] == "R", "../", "./")
+
+df <- read.csv(paste0(dir_prefix, "data/eeesr.csv"))
 df <- df %>% filter(year == 1999)
 
 df <- df %>% select(-one_of("latent_lag", "physint_lag", "amnesty_lag", "year",
@@ -45,7 +53,7 @@ plot_pred(pred$latent, pred$truth, pred$variance,
           outlier_idx = which(pred$name %in% row.names(out)), labs = pred$name,
           xlab = "Latent Mean by Country (1999)", ylab = "Predicted Country Mean") +
     annotate("text", 3.5, -1, label = perf)
-ggsave("figures/latent_pred.png", width = 10, height = 6)
+ggsave(paste0(dir_prefix, "figures/latent_pred.png"), width = 10, height = 6)
 
 imp <- variable_importance(fit)
 labels <- c("INGOs", "Executive Compet.", "Executive Open.",
@@ -57,13 +65,13 @@ labels <- c("INGOs", "Executive Compet.", "Executive Open.",
             "CCPR Ratifier", "Youth Bulge", "Ter. Revison.", "Rule of Law", "CIM", "CIE",
             "HR Sanctions", "Non-HR Sanctions")
 plot_imp(imp, "descending", labels, ylab = "Permutation Importance", xlab = "")
-ggsave("figures/latent_imp.png", width = 10, height = 6)
+ggsave(paste0(dir_prefix, "figures/latent_imp.png"), width = 10, height = 6)
 
 top <- ivar[ivar %in% imp$labels[order(imp$value, decreasing = TRUE)][1:12]]
 pd <- partial_dependence(fit, var = top, interaction = FALSE, ci = TRUE, parallel = TRUE)
 pd$labels <- labels[match(pd$variable, imp$labels)]
 plot_pd(pd, facet_var = "labels", ylab = "Latent Respect for Physical Integrity Rights (Country Mean)")
-ggsave("figures/latent_pd.png", width = 10, height = 8)
+ggsave(paste0(dir_prefix, "figures/latent_pd.png"), width = 10, height = 8)
 
 prox <- extract_proximity(fit)
 pca <- prcomp(prox)
@@ -71,4 +79,4 @@ pca <- prcomp(prox)
 df$injud <- factor(df$injud, labels = c("not independent", "somewhat independent", "mostly independent"))
 plot_prox(pca, labels = countrycode(df$ccode, "cown", "country.name"),
           color = df$injud, color_label = "Judicial Independence")
-ggsave("figures/latent_prox.png", width = 10, height = 7)
+ggsave(paste0(dir_prefix, "figures/latent_prox.png"), width = 10, height = 7)
