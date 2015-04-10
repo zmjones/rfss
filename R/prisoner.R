@@ -1,5 +1,9 @@
 set.seed(1987)
 
+args <- commandArgs(TRUE)
+cores <- as.integer(args[1])
+if (is.na(cores)) cores <- 1
+
 library(party)
 library(edarf)
 library(ggplot2)
@@ -9,7 +13,7 @@ library(tidyr)
 library(doParallel)
 library(stringr)
 
-registerDoParallel(makeCluster(8))
+registerDoParallel(makeCluster(cores))
 
 path <- unlist(str_split(getwd(), "/"))
 dir_prefix <- ifelse(path[length(path)] == "R", "../", "./")
