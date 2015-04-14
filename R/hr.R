@@ -73,6 +73,12 @@ pd$labels <- labels[match(pd$variable, imp$labels)]
 plot_pd(pd, facet_var = "labels", ylab = "Latent Respect for Physical Integrity Rights (Country Mean)")
 ggsave(paste0(dir_prefix, "figures/latent_pd.png"), width = 10, height = 8)
 
+top <- ivar[ivar %in% imp$labels[order(imp$value, decreasing = TRUE)][1:6]]
+pd <- partial_dependence(fit, var = top, interaction = FALSE, ci = TRUE, parallel = TRUE)
+pd$labels <- labels[match(pd$variable, imp$labels)]
+plot_pd(pd, facet_var = "labels", ylab = "Latent Respect for Physical Integrity Rights (Country Mean)")
+ggsave(paste0(dir_prefix, "figures/latent_pd_slides.png"), width = 9, height = 6)
+
 prox <- extract_proximity(fit)
 pca <- prcomp(prox)
 

@@ -1,14 +1,10 @@
-% Exploratory Data Analysis using Random Forests[^conf]
-% Zachary Jones and Fridolin Linder[^contact]
-
-[^conf]: Prepared for the 73rd annual MPSA conference, April 16-19, 2015.
-[^contact]: Zachary M. Jones is a Ph.D. student in political science at Pennsylvania State University ([zmj@zmjones.com](mailto:zmj@zmjones.com)). Fridolin Linder is a Ph.D. student in political science at Pennsylvania State University ([fridolin.linder@gmail.com](mailto:fridolin.linder@gmail.com)); his work is supported by Pennsylvania State University and the National Science Foundation under an IGERT award \#DGE-1144860, "Big Data Social Science".
-
+% Exploratory Data Analysis using Random Forests
+% Zachary Jones and Fridolin Linder
 
 # Motivation
  - Big Data and other sources of new data revive exploratory data analysis (EDA)
- - Machine learning (ML) is seen as ``black box''
- - But: Can be very helpful for EDA
+ - Machine learning (ML) is seen as "black box"
+ - However, can be very helpful for EDA
  - Flexible, scalable
  - We present Random Forests (RF) as a method for EDA
  - Provide software for EDA with RF: \texttt{edarf}
@@ -23,9 +19,9 @@
 
 $$\mathbf{y} = f(\mathbf{X})$$
 
- - Non-parametric: No assumptions about the distribution of the outcome variable
+ - Non-parametric: No assumptions about the distribution of the outcome variable (only that the true function can be approximated well by composition of piecewise constant functions)
  - Works for continuous and discrete (ordered/unordered) outcomes
- - CART "learns" a piecewise approximation to $f(\cdot)$ by finding homogeneous subsets of the data conditional on the predictors
+ - CART "learns" a piecewise constant approximation to $f(\cdot)$ by finding homogeneous subsets of the data conditional on the predictors
  - Homogeneous subsets are produced by recursively splitting the data into binary partitions, conditional on their values on the predictors
  
 # CART (Demonstration)
@@ -38,29 +34,30 @@ $$\mathbf{y} = f(\mathbf{X})$$
  - problems with correlated and weak predictors
  - ensembles of decision trees are used to mitigate these problems
 
-  1. bagging (resample data, fit a tree to each replicate, average over trees)
+  1. bagging (resample data, fit a tree to each replicate, summarise over trees)
   2. random selection of predictors at each split
 
 Bagging combined with random selection of predictors gives random forests
 
 # Random Forest Function Approximation
 
-![25 randomly selected trees (shown in blue) in a random forest (prediction shown in red) each grown with a .632 subsample of the training data.](figures/forest_approximation.png)
+![25 randomly selected trees (shown in blue) in a random forest (prediction shown in red) each grown with a .632 subsample of the training data.](figures/forest_approximation_slides.png)
 
 # Methods for EDA
+
  - Variable importance: Permutation Importance, Tree Depth
  - Interpreting relationships: Partial Dependence
- - Detecting Interactions: k-way Partial Dependence, Depth in Subtrees
- - Clustering: Proximity Matrices
+ - Detecting Interactions: $k$-way Partial Dependence, Depth in Subtrees
+ - Clustering: Proximity Matrices (decomposed)
 
 # Example Data
 
+We are looking for better examples!
+
  - State Repression
-   + State repression (1999) country level data from Fariss (2014)
-   + Predictors are a subset of Hill and Jones (2014)
+   + State repression (static, only 1999) country-year data from Fariss (2014) and Hill and Jones (2014)
  - Ex-fellons turnout
-   + Field experiment on 6000 Connecticut 
- - Work in progress: examples not very well suited
+   + Field experiment on ~6000 ex-felons in Connecticut
 
 # Permutation Importance
 
@@ -68,24 +65,47 @@ Bagging combined with random selection of predictors gives random forests
 
 # Partial Dependence
 
-![Permutation importance (top ten shown) for predictors of state repression. The dot shows the mean increase (across trees) in mean squared error.](figures/latent_imp.png)
+![Partial dependence of top 6 predictors of state repression.](figures/latent_pd_slides.png)
 
 # Interactions
 
-\input{figures/latex_subfloats/interaction.tex}
+![Partial dependence of time since release (in year) across treatment levels on the probability of voting in the 2012 election for ex-felons that registered to do so.](figures/pd_int_cond_vote.png)
 
-# Clustering
+# Clustering (1)
 
-\input{figures/latex_subfloats/proximity.tex}
+![](figures/prox_cond_vote_top.png)
 
+# Clustering (2)
+
+![](figures/prox_cond_vote_bottom.png)
+
+# Future Development
+
+ - functional ANOVA decomposition of learned $f(\mathbf{X})$ (Hooker 2004, 2007)
+    + decrease influence of extrapolation of low dimensional representation of learned $f(\mathbf{X})$
+ - interaction detection
+    + maximal subtree visualization and computation (Ishwaran et. al. 2011)
+    + joint/marginal permutation importance visualization and computation
+    + additivity testing (Mentch and Hooker 2014)
+ - variance estimation
+    + using incomplete U-statistics (Mentch and Hooker 2014)
+
+# Future Research (Dependent Data)
+
+ - Nonparametric bootstraps for dependent data (e.g. Lahiri 2003)
+    + application specific but would be nice to have accessible implementations
+ - GLME estimation random effects and tree-based estimation of $f(\cdot)$ (e.g., Hajjem 2014)
 
 # Conclusion
 
- - positives
-    + powerful at prediction tasks
-    + intuitive means of substantive interpretation
-    + scalable (up and down)
+ - good general purpose supervised learner (in terms of generalization error)
+    + empirically (e.g., Fernandez-Delgado et al. 2014)
+    + theoretically (e.g., Wager and Walther 2015)
+ - *many* methods for interpretation (compared to many other supervised learners) and `edarf` makes this *much* easier to do
+ - relatively easy to explain (in the simplest form)
 
- - negatives
-    + no use of dependency structure
-	+ statistical theory still being developed
+# Contact and Links
+
+ - Zach ([zmj@zmjones.com](mailto:zmj@zmjones.com))
+ - Frido ([fridolin.linder@psu.edu](mailto:fridolin.linder@psu.edu))
+ - `edarf` [github.com/zmjones/edarf](http://github.com/zmjones/edarf)
