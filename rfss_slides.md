@@ -4,80 +4,104 @@
 # Motivation
  - Big Data and other sources of new data revive exploratory data analysis (EDA)
  - Machine learning (ML) is seen as "black box"
- - However, can be very helpful for EDA
- - Flexible, scalable
- - We present Random Forests (RF) as a method for EDA
- - Provide software for EDA with RF: \texttt{edarf}
- - Demonstration with political science examples (Input!)
-
-# Overview
- - Introduction to CART and RF
- - 
+ - But can be very helpful, especially when theory is not very developed
+ - Random Forests (RF) are a flexible and scalable method -> good for EDA
 
 
-# CART (Overview)
+# Contributions
 
-$$\mathbf{y} = f(\mathbf{X})$$
+ - We argue: Predictive algorithms can be used for substantive research (EDA)
+ - Introduction to Random Forests for political scientists
+ - Collection and exposition of methods for substantive interpretation
+ - Developement of an \texttt{R} Package (\texttt{edarf}) to make these methods easily accessible
 
- - Non-parametric: No assumptions about the distribution of the outcome variable (only that the true function can be approximated well by composition of piecewise constant functions)
- - Works for continuous and discrete (ordered/unordered) outcomes
- - CART "learns" a piecewise constant approximation to $f(\cdot)$ by finding homogeneous subsets of the data conditional on the predictors
- - Homogeneous subsets are produced by recursively splitting the data into binary partitions, conditional on their values on the predictors
- 
-# CART (Demonstration)
+# Classification and Regression Trees (CART)
+
+ - Random Forest is an ensemble of many CART
+ - CART "learns" the model by finding homogeneous subsets of the data conditional on the predictors
 
 ![A classification tree on simulated data](figures/cart.png)
 
 # Random Forests
 
- - decision trees are low bias high variance estimators of $\hat{f}(\mathbf{X})$
- - problems with correlated and weak predictors
- - ensembles of decision trees are used to mitigate these problems
+- CART have low bias high variance and have problems with correlated and weak predictors
+- Random Forest (Breiman 2001) solves the problem through:
 
-  1. bagging (resample data, fit a tree to each replicate, summarise over trees)
+  1. bagging (resample data, fit a tree to each replicate, summarize over trees)
   2. random selection of predictors at each split
 
-Bagging combined with random selection of predictors gives random forests
+# Random Forest
 
-# Random Forest Function Approximation
+![The basic structure of a Random Forest](figures/concept/concept.png)
 
-![25 randomly selected trees (shown in blue) in a random forest (prediction shown in red) each grown with a .632 subsample of the training data.](figures/forest_approximation_slides.png)
+# Methods for Exploratory Data Analysis
 
-# Methods for EDA
+ - Very good for EDA, because:
+ - **Flexible**: Detects interactions, nonlinear relationships
+ - **Versatile**: All kinds of outcomes, no parametric assumptions, many predictors
+ - But, direct interpretation impossible
+ - Special methods to extract substantive insights:
+     +  Variable importance: permutation importance, average tree depth
+     +  Interpreting relationships: partial dependence
+     +  Detecting Interactions: $k$-way partial dependence, depth in Subtrees, marginal vs. joint importance
+     +  Clustering: proximity matrices
 
- - Variable importance: Permutation Importance, Tree Depth
- - Interpreting relationships: Partial Dependence
- - Detecting Interactions: $k$-way Partial Dependence, Depth in Subtrees
- - Clustering: Proximity Matrices (decomposed)
+# \texttt{edarf}
+
+ - There are three major \texttt{R} packages to fit random forests: \texttt{randomForest}, \texttt{randomForestSRC}, \texttt{party}
+ - Methods for interpretation are implemented in some packages, but not consistent across packages
+ - No good visualizations (important for EDA)
+ - Some newer developments are not integrated (e.g. uncertainty in predictions + see Future Developement)
 
 # Example Data
 
-We are looking for better examples!
-
  - State Repression
-   + State repression (static, only 1999) country-year data from Fariss (2014) and Hill and Jones (2014)
- - Ex-fellons turnout
+   + State repression (static, only 1999) country-year data from Faeries (2014) and Hill and Jones (2014)
+ - Ex-felons turnout
    + Field experiment on ~6000 ex-felons in Connecticut
+
+We are looking for better examples!
 
 # Permutation Importance
 
-![Permutation importance (top ten shown) for predictors of state repression. The dot shows the mean increase (across trees) in mean squared error.](figures/latent_imp.png)
+- Measure: By how much does the predictive accuracy decrease when randomly permuting an explanatory variable $x$
+
+
+# Permutation Importance Example
+
+![Permutation importance for predictors of state repression.](figures/latent_imp.png)
 
 # Partial Dependence
 
-![Partial dependence of top 6 predictors of state repression.](figures/latent_pd_slides.png)
+ - Average prediction of the Forest for a value of the predictor
 
-# Interactions
+ - Algorithm:
+    + Set $x$ to one value of $x$ for each observation in data
+    + Make a prediction for each observation
+    + Average over predictions
+    + Repeat for each unique value
 
-![Partial dependence of time since release (in year) across treatment levels on the probability of voting in the 2012 election for ex-felons that registered to do so.](figures/pd_int_cond_vote.png)
+# Permutation Importance Example
 
-# Clustering (1)
+![Partial dependence for selected predictors of state repression.](figures/latent_pd_slides.png)
+
+# Interaction Detection
+
+- Several methods for interaction detection
+    + Joint partial dependence
+    + Depth in maximal subtrees
+    + Marginal vs. Joint variable importance
+
+# Joint Partial Dependence Example
+
+![Partial dependence of time since release (in years) across treatment levels on the probability of voting in the 2012 election for ex-felons that registered.](figures/pd_int_cond_vote.png)
+
+# Clustering
+
+
+# Clustering Example
 
 ![](figures/prox_cond_vote_top.png)
-
-# Clustering (2)
-
-![](figures/prox_cond_vote_bottom.png)
 
 # Future Development
 
@@ -101,11 +125,10 @@ We are looking for better examples!
  - good general purpose supervised learner (in terms of generalization error)
     + empirically (e.g., Fernandez-Delgado et al. 2014)
     + theoretically (e.g., Wager and Walther 2015)
- - *many* methods for interpretation (compared to many other supervised learners) and `edarf` makes this *much* easier to do
- - relatively easy to explain (in the simplest form)
+ - many methods for interpretation (compared to many other supervised learners) and `edarf` makes this much easier to do
 
 # Contact and Links
 
  - Zach ([zmj@zmjones.com](mailto:zmj@zmjones.com))
- - Frido ([fridolin.linder@psu.edu](mailto:fridolin.linder@psu.edu))
+ - Fridolin ([fridolin.linder@psu.edu](mailto:fridolin.linder@psu.edu))
  - `edarf` [github.com/zmjones/edarf](http://github.com/zmjones/edarf)
