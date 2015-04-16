@@ -11,7 +11,7 @@ rfss_manuscript.tex: rfss_manuscript.md
 	pandoc -H options.sty $< -o $@ --bibliography=rfss.bib -s
 
 rfss_slides.pdf: rfss_slides.md
-	pandoc -t beamer $< -o $@
+	pandoc -H options_s.sty -t beamer $< -o $@
 
 R/partitioning_example.Rout: R/partitioning_example.R
 	R --no-save --no-restore < $< > $@

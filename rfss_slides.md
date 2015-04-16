@@ -1,11 +1,16 @@
-% Exploratory Data Analysis using Random Forests
-% Zachary Jones and Fridolin Linder
+% Exploratory Data Analysis using Random Forest
+% Zachary Jones[^zach] and Fridolin Linder[^frido]
+
+
+[^zach]:[zmj@zmjones.com](mailto:zmj@zmjones.com)
+[^frido]:[fridolin.linder@psu.edu](mailto:fridolin.linder@psu.edu)
 
 # Motivation
- - Big Data and other sources of new data revive exploratory data analysis (EDA)
- - Machine learning (ML) is seen as "black box"
+ - Exploratory data analysis is important part of every research agenda
+ - Rise of ``Big Data'': Lots of data little theory
+ - Machine learning is seen as "black box"
  - But can be very helpful, especially when theory is not very developed
- - Random Forests (RF) are a flexible and scalable method -> good for EDA
+ - Random Forest is a flexible, scalable and versatile method to do so 
 
 
 # Contributions
@@ -20,7 +25,8 @@
  - Random Forest is an ensemble of many CART
  - CART "learns" the model by finding homogeneous subsets of the data conditional on the predictors
 
-![A classification tree on simulated data](figures/cart.png)
+![](figures/cart_s.png)
+
 
 # Random Forests
 
@@ -32,58 +38,58 @@
 
 # Random Forest
 
-![The basic structure of a Random Forest](figures/concept/concept.png)
+![The structure of a random forest](figures/concept/concept.png)
 
 # Methods for Exploratory Data Analysis
 
  - Very good for EDA, because:
- - **Flexible**: Detects interactions, nonlinear relationships
- - **Versatile**: All kinds of outcomes, no parametric assumptions, many predictors
+     + **Flexible**: Detects interactions, nonlinear relationships
+     + **Versatile**: All kinds of outcomes, no parametric assumptions, many predictors
  - But, direct interpretation impossible
  - Special methods to extract substantive insights:
-     +  Variable importance: permutation importance, average tree depth
-     +  Interpreting relationships: partial dependence
-     +  Detecting Interactions: $k$-way partial dependence, depth in Subtrees, marginal vs. joint importance
-     +  Clustering: proximity matrices
+     +  **Variable importance**: permutation importance, average tree depth
+     +  Interpreting **relationships**: partial dependence
+     +  Detecting **Interactions**: $k$-way partial dependence, depth in Subtrees, marginal vs. joint importance
+     +  **Clustering**: proximity matrices
 
-# \texttt{edarf}
+# \texttt{edarf} (**E**xploratory **D**ata **A**nalysis with **R**andom **F**orests)
 
- - There are three major \texttt{R} packages to fit random forests: \texttt{randomForest}, \texttt{randomForestSRC}, \texttt{party}
+ - There are three major \texttt{R} packages to fit random forests: \texttt{randomForest}, \texttt{randomForestSRC} and \texttt{party}
  - Methods for interpretation are implemented in some packages, but not consistent across packages
  - No good visualizations (important for EDA)
  - Some newer developments are not integrated (e.g. uncertainty in predictions + see Future Developement)
+ - Development version available at: [github.com/zmjones/edarf](http://github.com/zmjones/edarf)
 
 # Example Data
 
- - State Repression
-   + State repression (static, only 1999) country-year data from Faeries (2014) and Hill and Jones (2014)
- - Ex-felons turnout
-   + Field experiment on ~6000 ex-felons in Connecticut
+ -  State repression (static, only 1999) country-year data from Fariss (2014) and Hill and Jones (2014)
+ -  Field experiment on turnout of ~6000 ex-felons in Connecticut (Gerber et al. 2014)
 
 We are looking for better examples!
 
-# Permutation Importance
+# Variable Importance
 
-- Measure: By how much does the predictive accuracy decrease when randomly permuting an explanatory variable $x$
-
+- Permutation Importance: By how much does the predictive accuracy decrease when randomly permuting an explanatory variable $X$
+- Tree depth: How close to the root node is the first split on a variable (Ishwaran 2010)
 
 # Permutation Importance Example
 
 ![Permutation importance for predictors of state repression.](figures/latent_imp.png)
 
-# Partial Dependence
+# Interpreting Relationships: Partial Dependence
 
  - Average prediction of the Forest for a value of the predictor
 
  - Algorithm:
-    + Set $x$ to one value of $x$ for each observation in data
-    + Make a prediction for each observation
+    + Set $X$ to one value of $X$ for each observation in dataset
+    + Predict outcome for each observation
     + Average over predictions
     + Repeat for each unique value
+    + Plot predictions against unique values of $X$
 
 # Permutation Importance Example
 
-![Partial dependence for selected predictors of state repression.](figures/latent_pd_slides.png)
+![Partial Dependence for selected predictors of state repression.](figures/latent_pd_slides.png)
 
 # Interaction Detection
 
@@ -98,10 +104,13 @@ We are looking for better examples!
 
 # Clustering
 
+- Intuitive measure similarity of observations in the predictor space
+- How often do two observations end up in the same terminal node:
+- Decomposition of proximity matrix ($n \times n$) for visualization
 
 # Clustering Example
 
-![](figures/prox_cond_vote_top.png)
+![First two principal components of proximity matrix for prisoners example](figures/prox_cond_vote_top.png)
 
 # Future Development
 
@@ -127,8 +136,3 @@ We are looking for better examples!
     + theoretically (e.g., Wager and Walther 2015)
  - many methods for interpretation (compared to many other supervised learners) and `edarf` makes this much easier to do
 
-# Contact and Links
-
- - Zach ([zmj@zmjones.com](mailto:zmj@zmjones.com))
- - Fridolin ([fridolin.linder@psu.edu](mailto:fridolin.linder@psu.edu))
- - `edarf` [github.com/zmjones/edarf](http://github.com/zmjones/edarf)
