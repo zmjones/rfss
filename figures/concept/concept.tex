@@ -1,0 +1,42 @@
+\documentclass{article}
+\usepackage{tikz}
+\usetikzlibrary{calc}
+\begin{document}
+
+\tikzstyle{odata} = [rectangle, draw, fill=blue!20, 
+    text width=5em, text centered, rounded corners, minimum height=8em, minimum width=8em]
+\tikzstyle{data} = [rectangle, draw, fill=blue!20, 
+    text width=5.5em, text centered, rounded corners, minimum height=4em]
+\tikzstyle{post} = [rectangle, draw, fill=red!20, 
+    text width=5.5em, text centered, rounded corners, minimum height=4em]
+\tikzstyle{fpost} = [rectangle, draw, fill=red!20, 
+    text width=5em, text centered, rounded corners, minimum height=8em, minimum width=8em]
+\tikzstyle{ttree} = [circle, draw, fill=black!20, 
+    text width=5em, text centered, minimum height=2em, minimum width=2em]
+
+
+\begin{tikzpicture}[sibling distance=4cm]
+\node[data] (topnode) at (0,5) { {Original Data} } 
+child { node[data] at (0,-1) {{Bootstrap Sample 1}} }
+child { node[data] at (0,-1) [label=right:{   ...}]{{Bootstrap Sample 2}} }
+child { node[data] at (0,-1) {{Bootstrap Sample $T$}} }
+;
+
+\node[post](bottomnode) at (0,-2) {Ensemble Output} [grow'=up]
+child { node[ttree] at (0,1) {{CART 1}} }
+child { node[ttree] at (0,1) [label=right:{   ...}]{{CART 2}} }
+child { node[ttree] at (0,1) {{CART $T$}} }
+;
+\foreach \x in {1,2,3}{
+\draw (topnode-\x) -- (bottomnode-\x);
+}
+
+%\draw[blue,thick] ($(topnode-1.north west)+(-0.1,4)$)  rectangle ($(topnode-3.south east)+(0.1,-0.1)$);
+\draw[black!80,thick] ($(bottomnode-1.north west)+(-.5,.5)$)  rectangle ($(bottomnode-3.south east)+(.5,-3)$);
+%\draw[red,thick] ($(topnode-1.north west)+(-0.1,0.1)$)  rectangle ($(bottomnode-3.south east)+(0.1,-0.1)$);
+
+%\node[text width=2cm, color=blue] at (-3.99,6.59) {Bootstrap Sampling};
+%\node[text width=1.5cm, color=red] at (-6,1.5) {};
+\node[text width=2cm,color=black!80] at (-3.99,-2) {Random Forest};
+\end{tikzpicture}
+\end{document}
