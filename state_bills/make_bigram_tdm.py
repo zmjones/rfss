@@ -1,16 +1,5 @@
-
-# coding: utf-8
-
-# In[ ]:
-
-get_ipython().magic(u'load_ext autoreload')
-
-
-# In[72]:
-
 from __future__ import unicode_literals, print_function, division
 import sys
-sys.path.append('../../text_utils/')
 from text_utils import n_grams, CorpusStream, save_sparse_csc # Hand rolled utils
 get_ipython().magic(u'autoreload 2')
 import io
@@ -19,13 +8,8 @@ from gensim import corpora, matutils
 from nltk.corpus import stopwords
 import re
 
-
-# In[19]:
-
 parser = English()
 
-
-# In[68]:
 
 # Generate the cleaned n_gram file
 TDM_FILE = 'data/state_bill_tdm.npz'
@@ -39,9 +23,6 @@ excess_space = re.compile(r'\s+')
 non_alpha = re.compile(r'[^A-Za-z0-9 ]')
 
 dictionary = corpora.Dictionary()
-
-
-# In[69]:
 
 for i, line in enumerate(infile):
     splt = line.split(' ')
@@ -65,17 +46,11 @@ for i, line in enumerate(infile):
 infile.close()
 tempfile.close()
 
-
-# In[70]:
-
 # Reduce dictionary
 print('Reducing dictionary')
 print(len(dictionary))
 dictionary.filter_extremes(no_below=2, no_above=0.9)
 print(len(dictionary))
-
-
-# In[73]:
 
 stream = CorpusStream(dictionary=dictionary, text_input=TEMP_FILE,
                       status=True, use_tfidf=True)
@@ -84,4 +59,3 @@ tdm = matutils.corpus2csc(stream, num_terms=len(dictionary), dtype=float,
 print('tdm dimensions:')
 print(tdm.shape)
 save_sparse_csc(TDM_FILE, tdm)
-

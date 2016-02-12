@@ -1,0 +1,3 @@
+[submodule "state_bills/text_utils"]
+	path = state_bills/text_utils
+	url = https://github.com/flinder/text_utils.git
